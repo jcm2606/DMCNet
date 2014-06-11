@@ -1,0 +1,91 @@
+#  This class is part of ACENet, and belongs to the ACENet developer.
+
+#  Window
+#  Acts as a wrapper for any Window object instances.
+#  Inclusion
+
+map InclusionArguments get 0 Function
+map InclusionArguments get 1 Instance
+map InclusionArguments get 2 WData
+
+if Function eq new function.invoke WCreateInstance
+if Function eq print function.invoke WInstancePrint
+if Function eq cls function.invoke WInstanceCLS
+if Function eq setTitle function.invoke WInstanceSetTitle
+if Function eq point function.invoke WInstancePointClass
+
+
+
+
+#  Function:
+#    "WCreateInstance"
+#    Internal function for creating an instance of a Window object and the respective window.
+function.wrap WCreateInstance
+
+push WInstanceClass acenet\lib\graphics\window\WindowInstance
+
+reload.newInstance class WInstanceClass "Instance"
+
+function.end
+
+
+
+
+#  Function:
+#    "WInstancePrint"
+#    Internal function for grabbing an instance of a Window object and printing data to the instance via tickets.
+function.wrap WInstancePrint
+
+ticket file Instance
+system.comIn call acenet\lib\graphics\window\WindowScript.bat
+ticket write print Data
+ticket write pull Data
+ticket finalise
+
+function.end
+
+
+
+
+#  Function:
+#    "WInstanceCLS"
+#    Internal function for grabbing an instance of a Window object and clearing the instance's console logs via tickets.
+function.wrap WInstanceCLS
+
+ticket file Instance
+ticket write cls
+ticket finalise
+
+function.end
+
+
+
+
+#  Function:
+#    "WInstanceSetTitle"
+#    Internal function for grabbing an instance of a Window object and setting the instance's window title via tickets.
+function.wrap WInstanceSetTitle
+
+ticket file Instance
+system.comIn call acenet\lib\graphics\window\WindowScript.bat
+ticket write title Data
+ticket write pull Data
+ticket finalise
+
+function.end
+
+
+
+
+#  Function:
+#    "WInstancePushClass"
+#    Internal function for grabbing an instance of a Window object and pushing a classes' data via tickets.
+function.wrap WInstancePointClass
+
+ticket file Instance
+system.comIn call acenet\lib\graphics\window\WindowScriptPushClass.bat
+ticket write reload
+ticket write pull Data
+ticket finalise
+
+function.end

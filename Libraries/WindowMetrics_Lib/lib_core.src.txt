@@ -1,0 +1,28 @@
+@echo off
+setlocal enabledelayedexpansion
+
+set args=%1
+
+set "command=%args:"=%"
+
+for /f "tokens=1,2,3,4,5,6,7,8,9,10 delims=~" %%a in ("%command%") do (
+	if /i %%a==theme (
+		for /f "usebackq tokens=1,2,3,4,5,6,7,8,9,10 delims=:" %%A in ("%E_WorkingDirectory%\api\WindowMetrics\theme\!%%b!") do (
+			if /i %%A==window.name (
+				if %%B==.RESET (
+					title %TITLE%
+				) else (
+					call "%E_WorkingDirectory%\api\GUI\api_core.bat" "title~set~%%C"
+				)
+			)
+			
+			if /i %%A==window.commandline.colour (
+				call "%E_WorkingDirectory%\api\GUI\api_core.bat" "colour~%%B"
+			)
+			
+			if /i %%A==window.dimensions (
+				MODE CON COLS=%%B LINES=%%C
+			)
+		)
+	)
+)

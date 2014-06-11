@@ -1,0 +1,13 @@
+include DrawBox %PATH_ACENET_Lib%\graphics\draw\DrawBox
+include KeyHandler KeyHandler
+
+@ DrawBox %LocX% %LocY%
+
+function.wrap class.build
+math set LocX 1
+math set LocY 1
+function.end
+
+@ KeyHandler
+
+cls

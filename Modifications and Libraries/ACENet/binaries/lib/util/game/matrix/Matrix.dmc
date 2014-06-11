@@ -1,0 +1,12 @@
+map InclusionArguments get 0 MatrixFunction
+map InclusionArguments get 1 MatrixInstance
+map InclusionArguments get 2 MatrixSize
+map InclusionArguments get 3 MatrixSizeY
+
+if MatrixFunction eq create function.invoke GMatrixCreate
+
+function.wrap GMatrixCreate
+
+system.comIn call !PATH_ACENET_Lib!\game\matrix\MatrixScript.bat
+
+function.end

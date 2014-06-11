@@ -1,0 +1,71 @@
+Done:
+	- Variable manipulating (writing, reading, clearing)
+		- Push/Pull local variable values (cannot be done inside another set)
+	- Array system
+	- Logical IF statements (equal, not-equal, greater than, less than, greater than or equal, less than or equal)
+	- Mathematics functions (addition, subtraction, multiplication, division)
+	- MS-DOS integration
+	- Looping
+	- Inclusions (shortcuts for classes)
+	- File manipulation
+	- Multi-session ticketing
+
+To be done:
+	- More advanced ticketing
+		- Allowing tickets to be sent for specific environments
+	- Environment IDing
+		- A class can set an 'ID' that marks the current environment unique
+		- EDIT: Done
+	- More hook types and smarter hook identification
+	- Functions
+		- Greater control over functions
+		- Separate 'construct' callbacks for functions. Separate sets of code, one for declaring all functions, one for actual code callback
+			- EDIT: Done
+		- Function params
+
+Ideas:
+	- Ticketing changes
+		- Advanced data writing
+			- Data is written to the ticket file being separated into separate 'entries', the first one being the command, the second being the environment this command is directed to, the third being room for custom data on the specific line
+	- Perhaps code 'blocking'
+		- Would allow blocks of code to be used in IF statements and loops, where a single line of code is normally executed
+		- Could also be commented out for an entire block
+		- EDIT: Replaced and completed by way of functions
+			- The only thing not able to be done using functions is complete block commenting
+	- Better control over arguments
+		- Arguments by way of direct class calling from the launcher have been removed
+	- More Object-Oriented layout
+		- Would allow 'virtual classes', where blocks of code can be used as inclusions
+			- EDIT: This has been "done" by way of functions
+		- "Private" classes can be declared
+			- Functions, register manipulations, and other 'persisting' things are unique to just this class, when the classloader is reloaded (IE when a new class is loaded into the session), the persistent objects and modifications are revoked
+			- 'Persisting' objects can be declared "global" to counteract this "private flag"
+	- Custom hooks maybe? Allowing DMCNet programs to make their own hooks that are invoked either when a class is loaded or on a command
+	- 'Pixel'-based rendering
+		- Declaring a grid of X by Y, then 'painting' a single 'pixel' based on XY coordinates
+		- Draws a single type of ASCII character
+		- Note: WILL ONLY BE IMPLEMENTED IF NEEDED
+		- EDIT: This feature has been "implemented" within ACENet
+	- Custom runtime/execution environments (done)
+		- An entire custom directory where the programs data is stored (semi-done)
+		- Would behave as the full environment directly, including custom lib folder, custom possible binaries folder, and act as a whole working directory, essentially operating an entire program and all requisite programs within this custom environment (semi-done)
+		- Developer:
+			- Would allow a developer to control fine details about their programs
+			- Objects are only visible in this folder and all sub folders, that is, the program can only view folders within the environment folder
+			- Allows a program to include separate hooks, instead of hooks being global, they would only affect the environment their installed on
+			- Allows a program to include and use libraries which are unique for the environment
+		- User:
+			- A user could customise execution settings and instructions for programs they install
+			- Allows for easy installation of plugins and addons for programs
+	- Separate batch scripts for each set of code
+	- Every single thing in the program could be "objectified"
+		- You can essentially edit the raw data of the object by using system commands
+		- You can export said object to a variable as a string, displaying raw data
+		- You could import files into the environment and declare them "physical objects", data within the file being added to the object
+		- NOTE: Attempted and sort of working for variables, just need to get it working for more data types
+	- Ticketing and other special features becoming "APIs" of sorts
+		- Each special feature would be available in it's own API
+	- Inheriting
+		- Classes can "inherit" other classes (but only one) (called the Super Class)
+		- All functions in the Super Class are automatically declared, however the original class can override a function
+		- EDIT: Done

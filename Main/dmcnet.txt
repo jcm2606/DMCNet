@@ -1,0 +1,6 @@
+# START CORE ENVIRONMENT VALUES
+E_Debug:false
+E_WorkingDirectory:CD
+# END CORE ENVIRONMENT VALUES
+# Place custom values you wish to be loaded into
+# DMCNet's environment after here

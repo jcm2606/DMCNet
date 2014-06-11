@@ -1,0 +1,18 @@
+map InclusionArguments get 0 Function
+map InclusionArguments get 1 ObjName
+map InclusionArguments get 2 ObjArgs
+
+if Function eq new function.invoke DOInstanceCreate
+if Function eq set function.invoke DOInstanceSet
+
+function.wrap DOInstanceCreate
+
+system.comIn call core\acenet\lib\data\object\ObjectScript.bat dynamic
+
+function.end
+
+function.wrap DOInstanceSet
+
+system.comIn set Object_%ObjName%=%ObjArgs%
+
+function.end

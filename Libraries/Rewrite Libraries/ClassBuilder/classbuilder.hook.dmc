@@ -1,0 +1,3 @@
+# hookType start
+
+include ClassBuilder core\lib\ClassBuilder\classBuilder

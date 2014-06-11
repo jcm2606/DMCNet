@@ -1,0 +1,11 @@
+map InclusionArguments get 0 KYFunction
+map InclusionArguments get 1 KYCode
+map InclusionArguments get 2 KYVarName
+
+if KYCode declared _ system.register.getValueOf KYCode Temp
+if KYCode declared _ push.overwrite KYCode !Temp!
+if Temp declared _ pull Temp
+
+if KYFunction eq define system.comIn call !PATH_ACENET_Lib!\util\keyboard\KeyScript.bat define
+
+if KYFunction eq get system.comIn call !PATH_ACENET_Lib!\util\keyboard\KeyScript.bat getKeyCode

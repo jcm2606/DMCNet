@@ -1,0 +1,1 @@
+start /b core\core.bat !Argument1! !Argument2! "%E_CorePath%" "- %E_Flags%"

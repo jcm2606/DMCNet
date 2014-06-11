@@ -1,0 +1,20 @@
+@echo off
+
+set file=%1
+
+if not exist dev\compiled (
+	echo Error: Compiled environment directory not generated. New directory generated
+	mkdir dev\compiled
+	pause
+	exit
+)
+
+if exist dev\src\%file%.project.txt (
+	copy dev\src\%file%.project.txt dev\compiled
+	
+	if exist dev\compiled\%file%.dmcproject (
+		del dev\compiled\%file%.dmcproject
+	)
+	
+	ren dev\compiled\%file%.project.txt %file%.dmcproject
+)

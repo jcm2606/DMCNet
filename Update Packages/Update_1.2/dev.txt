@@ -1,0 +1,105 @@
+@echo off
+setlocal EnableDelayedExpansion
+
+set func=%1
+set args=%2
+
+if /i %func%==build call :build
+
+if not exist dev\bin (
+	echo Error: Development environment does not appear to be built.
+	echo        Please build the development environment.
+)
+
+if /i %func%==decompile call :decompile %args%
+if /i %func%==recompile call :recompile %args%
+if /i %func%==package call :package %args%
+if /i %func%==run call :run %args%
+if /i %func%==packageProject call :packageProject %args%
+if /i %func%==recompileAll call :recompileAll
+
+exit
+
+:build
+
+if not exist dev (
+	mkdir dev
+)
+
+if not exist dev\bin (
+	mkdir dev\bin
+) else (
+	if exist dev\bin\* (
+		echo Error: Development environment has already been built
+		pause
+		exit
+	)
+)
+
+for /f "tokens=1 delims=" %%a in ('dir core\data\template\dev /b /a-d-h-s') do (
+	for /f "tokens=1,2,3 delims=." %%A in ("%%a") do (
+		timeout /t 2 /nobreak >nul
+	
+		copy core\data\template\dev\%%a dev\bin
+		
+		timeout /t 2 /nobreak >nul
+		ren dev\bin\%%a %%A.bat
+	)
+)
+
+goto eof
+
+:decompile
+
+call dev\bin\decompile.bat %~1
+
+goto eof
+
+:recompile
+
+call dev\bin\recompile.bat %~1
+
+goto eof
+
+:package
+
+call dev\bin\package.bat %~1
+
+goto eof
+
+:run
+
+if not exist dev\compiled (
+	echo Error: Compiled environment directory not generated. New directory generated
+	mkdir dev\compiled
+	pause
+	exit
+)
+
+start core\core.bat class dev\compiled\%~1 "%CD%"
+
+goto eof
+
+:packageProject
+
+call dev\bin\packageProject.bat %~1
+
+goto eof
+
+:recompileAll
+
+for /f "tokens=1 delims=" %%a in ('dir src /b /a-d-h-s') do (
+	for /f "tokens=1,2,3 delims=." %%A in ("%%a") do (
+		if %%B==class (
+			call :recompile "%%A"
+		)
+		
+		if %%B==meta (
+			call :package "%%A"
+		)
+		
+		if %%B==project (
+			call :packageProject "%%A"
+		)
+	)
+)

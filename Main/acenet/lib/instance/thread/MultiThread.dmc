@@ -1,0 +1,17 @@
+map InclusionArguments get 0 Function
+map InclusionArguments get 1 NThreadName
+map InclusionArguments get 2 Argument1
+map InclusionArguments get 3 Argument2
+map InclusionArguments get 4 Argument3
+
+if Function eq define function.invoke MTDefine
+if Function eq start function.invoke MTStart
+if Function eq execute function.invoke MTStart
+
+function.wrap MTDefine
+    system.comIn call acenet\lib\instance\thread\MultiThreadDefine.bat
+function.end
+
+function.wrap MTStart
+    system.comIn call acenet\lib\instance\thread\MultiThreadStart.bat
+function.end

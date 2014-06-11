@@ -1,0 +1,7 @@
+class {
+    function.wrap main {
+        push test Hello World
+        print test
+        end
+    } function.end
+}

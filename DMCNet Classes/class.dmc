@@ -1,0 +1,19 @@
+include KeyInput %PATH_ACENET_Lib%\util\game\controller\key\KeyInput
+include Key %PATH_ACENET_Lib%\util\keyboard\Key
+include DrawBox %PATH_ACENET_Lib%\graphics\draw\DrawBox
+
+@ DrawBox %LocX% %LocY%
+
+function.wrap class.build
+    @ Key get w KeyUp
+    @ Key get s KeyDown
+    @ Key get a KeyLeft
+    @ Key get d KeyRight
+    
+    math set LocX 1
+    math set LocY 1
+function.end
+
+@ KeyInput KeyUp KeyDown KeyLeft KeyRight
+
+cls

@@ -1,0 +1,14 @@
+include KeyInput %PATH_ACENET_Lib%\game\controller\key\KeyInput
+include Key %PATH_ACENET_Lib%\util\keyboard\Key
+
+function.wrap KeyHandler.build
+math set LocX 1
+math set LocY 1
+
+@ Key define 327 Up
+@ Key define 335 Down
+@ Key define 330 Left
+@ Key define 332 Right
+function.end
+
+@ KeyInput Up Down Left Right

@@ -1,0 +1,724 @@
+@echo off
+setlocal enabledelayedexpansion
+
+set E_Version_Major=1
+set E_Version_Minor=3
+set E_Version=%E_Version_Major%.%E_Version_Minor%
+set func=%1
+set args=%2
+set loc=%3
+set "E_CoreObjMapPath=%loc:"=%\dmcnet.txt"
+set "E_CorePath=%loc:"=%"
+set PATH_E_Dev_SRC=%CD%\src
+set PATH_E_Dev_COMPILED=%CD%\compiled
+set PATH_Home=%homedrive%\
+set PATH_User=%userprofile%
+set PATH_UserAppdata=%appdata%
+set "PATH_LibFolder=%E_CorePath%\core\lib"
+
+:: Looking for the central DMCNet Object Map
+:loadCoreObjMap
+if exist "%E_CoreObjMapPath%" (
+	for /f "usebackq tokens=1,2,3,4,5,6 delims=: eol=#" %%a in ("%E_CoreObjMapPath%") do (
+		set "%%a=%%b"
+		
+		if %%a==E_WorkingDirectory (
+			set "%%a="
+		
+			set "E_WorkingDirectory=%CD%\%%b"
+			
+			if %%b==CD (
+				set "E_WorkingDirectory=%CD%"
+			)
+		)
+	)
+) else (
+	echo # START CORE ENVIRONMENT VALUES>>"%E_CoreObjMapPath%"
+	echo E_Debug:false>>"%E_CoreObjMapPath%"
+	echo E_WorkingDirectory:CD>>"%E_CoreObjMapPath%"
+	echo # END CORE ENVIRONMENT VALUES>>"%E_CoreObjMapPath%"
+	echo # Place custom values you wish to be loaded into>>"%E_CoreObjMapPath%"
+	echo # DMCNet's environment after here>>"%E_CoreObjMapPath%"
+	
+	echo New DMCNet environment object map generated.
+	echo Please restart DMCNet.
+	pause
+	exit
+)
+
+if not exist "%PATH_LibFolder%" (
+	mkdir "%PATH_LibFolder%"
+)
+
+for /f "tokens=1 delims=" %%a in ('dir "%PATH_LibFolder%" /b /ad-r-h-a-s-i-l') do (
+	for /f "tokens=1 delims=" %%A in ('dir "%PATH_LibFolder%\%%a" /b /a-d-h-s') do (
+		for /f "tokens=1,2,3 delims=." %%B in ("%%A") do (
+			if %%C==dmclib (
+				set "lib_%%B=%%B"
+				
+				for /f "usebackq tokens=1,2 delims==" %%G in ("%PATH_LibFolder%\%%B\%%B.dmclib") do (
+					if /i %%G==lib.required (
+						if not exist "%PATH_LibFolder%\%%E" (
+							echo Error: Library '%%B' requires another library which does not seem to be installed, library '%%B' has been disabled
+						
+							set "lib_%%B="
+						)
+					)
+				)
+			)
+		)
+	)
+)
+
+if exist "%PATH_LibFolder%\WindowMetrics" (
+	for /f "tokens=1 delims=" %%a in ('dir "%PATH_LibFolder%\WindowMetrics\theme" /b /a-d-h-s') do (
+		for /f "tokens=1,2,3 delims=." %%A in ("%%a") do (
+			if %%B==wmtheme (
+				set WMTheme_%%A=%%A.wmtheme
+			)
+		)
+	)
+)
+
+set TITLE=DMCNet %E_Version% - %func% %args%
+
+title %TITLE%
+
+if %func%==class goto func_run
+if %func%==line goto func_runLine
+if %func%==project goto func_runProject
+if %func%==wipe goto func_wipe
+
+echo Error: Command not recognised
+pause
+exit
+
+:: NEW FUNCTION
+
+:func_wipe
+
+if exist "%PATH_LibFolder%" rmdir /s /q "%PATH_LibFolder%"
+if exist dev rmdir /s /q dev
+if exist dmcnet.txt del dmcnet.txt
+
+echo [DMCNet] Wiped extra data
+pause
+exit
+
+:: END FUNCTION
+:: NEW FUNCTION
+
+:func_run
+
+set class=%args%
+
+:loadClass
+set E_ClassName=%file%
+set E_Title=DMCNet %E_Version% - %ClassName%
+set E_LaunchParams=%func% %args%
+set E_LaunchTime=%TIME%
+set E_LaunchDate=%DATE%
+set E_ClassParent=DMCNet.Core
+
+if not exist "%E_WorkingDirectory%\%class%.dmcclass" (
+	echo Error: File parsed does not exist.
+	pause
+	exit
+)
+
+if %E_Debug%==true (
+	echo [DMCNet] Checking for class metadata file
+)
+
+if exist "%E_WorkingDirectory%\%class%.dmcclass.dmcmeta" (
+	if %E_Debug%==true (
+		echo [DMCNet] Located class metadata, reading metadata map
+	)
+
+	for /f "usebackq tokens=1,2 delims==" %%a in ("%E_WorkingDirectory%\%class%.dmcclass.dmcmeta") do (
+		if %%a==class.name set E_ClassName=%%b
+		if %%a==class.version set E_ClassVersion=%%b
+		if %%a==class.parent set E_ClassParent=%%b
+	)
+)
+
+if %E_Debug%==true (
+	echo [DMCNet] Parsing class to processing
+)
+
+call :process "usebackq tokens=1,2,3,4,5,6,7,8,9 delims=> eol=#", "%E_WorkingDirectory%\%class%.dmcclass"
+
+goto loadClass
+
+
+:: END FUNCTION
+:: NEW FUNCTION
+
+
+:func_runLine
+title DMCNet Command Line
+
+set E_Debug=true
+
+:prompt
+set /p "input=| "
+
+:readInput
+if %E_Debug%==true (
+	echo [DMCNet] Parsing string "%input%" to processing
+)
+
+call :process "tokens=1,2,3,4,5,6,7,8,9 delims=> eol=#", "%input%"
+
+goto prompt
+
+
+:: END FUCTION
+:: NEW FUNCTION
+
+
+:func_runProject
+set project=%args%
+
+title DMCNet - Project: %project%
+
+if not exist "%E_WorkingDirectory%\%project%" (
+	echo Error: Project does not exist
+)
+
+set "E_WorkingDirectory=%CD%\%project%"
+
+if not exist "%E_WorkingDirectory%\%project%.dmcproject" (
+	echo Error: Project map is missing
+	pause
+	exit
+)
+
+for /f "usebackq tokens=1,2 eol=# delims==" %%a in ("%E_WorkingDirectory%\%project%.dmcproject") do (
+	if %%a==project.class.start set ProjectStartClass=%%b
+	if %%a==project.name set ProjectName=%%b
+	if %%a==project.version set ProjectVersion=%%b
+	if %%a==project.class.handler.end set ProjectEndHandlerClass=%%b
+)
+
+if not "%ProjectStartClass%"=="" (
+	set class=%ProjectStartClass%
+	
+	goto loadClass
+)
+
+echo Error: Project does not contain a start class
+pause
+exit
+
+:: Processing of data, whether it be string input or file
+:process
+for /f "%~1" %%a in ("%~2") do (
+	if /i %%a==env (
+		if /i %%b==objMap (
+			if /i %%c==write (
+				echo %%d:%%e>>"%E_CoreObjMapPath%"
+				
+				if %E_Debug%==true (
+					echo [DMCNet] Written data %%e in value field %%d to core object map
+				)
+			)
+			
+			if /i %%c==delete (
+				del "%E_CoreObjMapPath%"
+				
+				if %E_Debug%==true (
+					echo [DMCNet] Deleted core object map. Reload DMCNet to regenerate a fresh object map
+					
+					if not exist "%E_CoreObjMapPath%" (
+						echo [DMCNet] Returned true
+					)
+				)
+			)
+			
+			if /i %%c==reload (
+				if %E_Debug%==true (
+					echo [DMCNet] Core object map reloaded
+				)
+			
+				call :loadCoreObjMap
+			)
+		)
+		
+		if /i %%b==lib (
+			if /i %%c==exist (
+				if exist "%PATH_LibFolder%\%%d" (
+					echo [DMCNet] Library exists
+				) else (
+					echo [DMCNet] Library does not exist
+				)
+			)
+		)
+	)
+)
+
+for /f "%~1" %%a in ("%~2") do (
+	if /i %%a==logic (
+		if /i %%b==obj (
+			if /i %%d==value (
+				if /i %%e==set (
+					set "%%c=%%f"
+				
+					if %E_Debug%==true (
+						echo [DMCNet] Set object %%c to %%f
+						
+						if !%%c!==%%f (
+							echo [DMCNet] Returned true
+						)
+					)
+				)
+				
+				if /i %%e==setToObj (
+					set "%%c=!%%f!"
+					
+					if %E_Debug%==true (
+						echo [DMCNet] Set object %%c to object's %%f data
+						
+						if !%%c!==!%%f! (
+							echo [DMCNet] Returned true
+						)
+					)
+				)
+				
+				if /i %%e==setPrompt (
+					set /p "%%c=%%f"
+				)
+				
+				if /i %%e==clear (
+					set "%%c="
+					
+					if %E_Debug%==true (
+						echo [DMCNet] Cleared object %%c
+						
+						if !%%c!==NUL (
+							echo [DMCNet] Returned true
+						)
+					)
+				)
+			)
+			
+			if /i %%d==print (
+				if /i %%e==name (
+					echo %%c
+				)
+				
+				if /i %%e==value (
+					echo !%%c!
+				)
+			)
+		)
+		
+		if /i %%b==if (
+			if /i %%c==objString (
+				if /i %%e==eq (
+					if !%%d!==%%f (
+						call :process "tokens=1,2,3,4,5,6,7 delims=~ eol=#", "%%g"
+						
+						if %E_Debug%==true (
+							echo [DMCNet] Returned true
+						)
+					) else (
+						if %E_Debug%==true (
+							echo [DMCNet] Returned false
+						)
+					)
+				)
+				
+				if /i %%e==neq (
+					if not !%%d!==%%f (
+						call :process "tokens=1,2,3,4,5,6,7 delims=~ eol=#", "%%g"
+						
+						if %E_Debug%==true (
+							echo [DMCNet] Returned true
+						)
+					) else (
+						if %E_Debug%==true (
+							echo [DMCNet] Returned false
+						)
+					)
+				)
+			)
+			
+			if /i %%c==objObj (
+				if /i %%e==eq (
+					if !%%d!==!%%f! (
+						call :process "tokens=1,2,3,4,5,6,7 delims=~ eol=#", "%%g"
+						
+						if %E_Debug%==true (
+							echo [DMCNet] Returned true
+						)
+					) else (
+						if %E_Debug%==true (
+							echo [DMCNet] Returned false
+						)
+					)
+				)
+				
+				if /i %%e==neq (
+					if not !%%d!==!%%f! (
+						call :process "tokens=1,2,3,4,5,6,7 delims=~ eol=#", "%%g"
+						
+						if %E_Debug%==true (
+							echo [DMCNet] Returned true
+						)
+					) else (
+						if %E_Debug%==true (
+							echo [DMCNet] Returned false
+						)
+					)
+				)
+			)
+		)
+	)
+	
+	if /i %%a==window (
+		if /i %%b==setTitle (
+			title !%%c!
+			
+			if %E_Debug%==true (
+				echo [DMCNet] Title set to %%c object's data !%%c!
+			)
+		)
+		
+		if /i %%b==setDimensions (
+			MODE CON COLS=%%c LINES=%%d
+			
+			if %E_Debug%==true (
+				echo [DMCNet] Window dimensions set to %%c x %%d
+			)
+		)
+		
+		if /i %%b==print (
+			echo %%c
+		)
+		
+		if /i %%b==printFile (
+			type %%c
+			echo.
+		)
+		
+		if /i %%b==printLine (
+			echo.
+		)
+		
+		if /i %%b==flush (
+			cls
+		)
+		
+		if /i %%b==waitPrompt (
+			pause
+		)
+	)
+	
+	if /i %%a==core (
+		if /i %%b==newInstance (
+			start %0 %%c %%d "%E_CoreObjMapPath%"
+			
+			if %E_Debug%==true (
+				echo [DMCNet] New instance started and parsed paramters "%%c %%d "%E_CoreObjMapPath%""
+			)
+		)
+		
+		if /i %%b==exit (
+			exit
+		)
+		
+		if /i %%b==run (
+			call :process "tokens=1,2,3,4,5,6 delims=~ eol=#", "%%c"
+		)
+		
+		if /i %%b==runFromObj (
+			call :process "tokens=1,2,3,4,5,6 delims=> eol=#", "!%%c!"
+		)
+		
+		if /i %%b==cmd (
+			if /i %%c==run (
+				if /i %%e==string (
+					%%d
+				)
+				
+				if /i %%e==obj (
+					!%%d!
+				)
+			)
+		)
+		
+		if /i %%b==get (
+			if /i %%c==version (
+				echo %E_Version%
+			)
+			
+			if /i %%c==workingDirectory (
+				echo "%E_WorkingDirectory%"
+			)
+			
+			if /i %%c==pathHome (
+				echo "%PATH_Home%"
+			)
+			
+			if /i %%c==coreDirectory (
+				echo %loc%
+			)
+		)
+	)
+	
+	if /i %%a==fileio (
+		if /i %%b==file (
+			if /i %%d==push (
+				if not exist !%%c! (
+					echo :: Auto-Generated File>>!%%c!
+					echo :: Generated at %TIME% %DATE%>>!%%c!
+					
+					if %E_Debug%==true (
+						echo [DMCNet] File named with %%c object's data !%%c! pushed
+						
+						if exist !%%c! (
+							echo [DMCNet] Returned true
+						)
+					)
+				)
+			)
+			
+			if /i %%d==write (
+				echo %%e>>!%%c!
+				
+				if %E_Debug%==true (
+					echo [DMCNet] File parsed with %%c object's data !%%c! written to
+				)
+			)
+			
+			if /i %%d==rename (
+				ren !%%c! !%%e!
+				
+				if %E_Debug%==true (
+					echo [DMCNet] File parsed with %%c object's data !%%c! renamed to %%e object's data !%%e!
+					
+					if exist !%%e! (
+						echo [DMCNet] Returned true
+					)
+				)
+			)
+			
+			if /i %%d==erase (
+				del !%%c!
+				
+				if %E_Debug%==true (
+					echo [DMCNet] File parsed with %%c object's data !%%c! deleted
+					
+					if not exist !%%c! (
+						echo [DMCNet] Returned true
+					)
+				)
+			)
+			
+			if /i %%d==detect (
+				if exist !%%c! (
+					echo [DMCNet] File parsed exists at the currently marked location
+				) else (
+					echo [DMCNet] File parsed does not exist at the currently marked location
+				)
+			)
+		)
+		
+		if /i %%b==folder (
+			if /i %%d==push (
+				mkdir !%%c!
+				
+				if %E_Debug%==true (
+					echo [DMCNet] Folder parsed with %%c object's data !%%c! pushed
+					
+					if exist !%%c! (
+						echo [DMCNet] Returned true
+					)
+				)
+			)
+			
+			if /i %%d==mark (
+				cd !%%c!
+				
+				if %E_Debug%==true (
+					echo [DMCNet] Folder parsed with %%c object's data !%%c! marked
+				)
+			)
+			
+			if /i %%d==erase (
+				rmdir !%%c!
+				
+				if %E_Debug%==true (
+					echo [DMCNet] Folder parsed with %%c object's data !%%c! deleted
+					
+					if not exist !%%c! (
+						echo [DMCNet] Returned true
+					)
+				)
+			)
+			
+			if /i %%d==listContent (
+				tree !%%c! /f
+			)
+		)
+		
+		if %%b==objMap (
+			if %%d==import (
+				for /f "usebackq tokens=1,2 delims=: eol=#" %%A in ("%E_WorkingDirectory%\%%c.txt") do (
+					set "%%A=%%B"
+				)
+				
+				if %E_Debug%==true (
+					echo [DMCNet] Object Map named %%c imported into environment
+				)
+			)	
+			
+			if %%d==export (
+				for /f "usebackq tokens=1,2 delims=: eol=#" %%A in ("%E_WorkingDirectory%\%%c.txt") do (
+					echo %%A:!%%A!>>%%e.txt
+				)
+			)
+			
+			if %%d==exportNames (
+				for /f "usebackq tokens=1,2 delims=: eol=#" %%A in ("%E_WorkingDirectory%\%%c.txt") do (
+					echo %%A>>%%e.txt
+				)
+			)
+			
+			if %%d==exportValues (
+				for /f "usebackq tokens=1,2 delims=: eol=#" %%A in ("%E_WorkingDirectory%\%%c.txt") do (
+					echo !%%A!>>%%e.txt
+				)
+			)
+			
+			if %%d==print (
+				for /f "usebackq tokens=1,2,3 delims=: eol=#" %%A in ("%E_WorkingDirectory%\%%c.txt") do (
+					echo Key: "%%A", Value: "%%B"
+				)
+			)
+		)
+		
+		if /i %%c==load (
+			if %E_Debug%==true (
+				echo [DMCNet] File named with %%b object's data !%%b! loaded in current environment
+			)
+			
+			call !%%b!
+		)
+		
+		if /i %%c==loadNewInstance (
+			if %E_Debug%==true (
+				echo [DMCNet] File named with %%b object's data !%%b! loaded in new environment
+			)
+		
+			start !%%b!
+		)
+	)
+	
+	if /i %%a==class (
+		if /i %%b==push (
+			if exist "%E_WorkingDirectory%\%%c.dmcclass" (
+				set class=%%c
+			)
+			
+			if %E_Debug%==true (
+				echo [DMCNet] Pushing class %%c to current environment
+			)
+			
+			if not exist "%E_WorkingDirectory%\%%c.dmcclass" (
+				echo [DMCNet] Error: Class parsed does not exist
+			)
+		)
+		
+		if /i %%b==end (
+			if %func%==line (
+				if not "%ProjectEndHandlerClass%"=="" (
+					call :process "usebackq tokens=1,2,3,4,5,6,7,8,9 delims=> eol=#", "%E_WorkingDirectory%\%ProjectEndHandlerClass%.dmcclass"
+				)
+			
+				echo.
+				echo [DMCNet] Class has ended
+				goto func_runLine
+			) else (
+				if not "%ProjectEndHandlerClass%"=="" (
+					call :process "usebackq tokens=1,2,3,4,5,6,7,8,9 delims=> eol=#", "%E_WorkingDirectory%\%ProjectEndHandlerClass%.dmcclass"
+				)
+			
+				echo.
+				echo [DMCNet] Class has ended
+				pause
+				exit
+			)
+		)
+		
+		if /i %%b==metadata (
+			if /i %%c==exist (
+				if exist "%E_WorkingDirectory%\%class%.dmcclass.dmcmeta" (
+					echo [DMCNet] Return true
+				) else (
+					echo [DMCNet] Return false
+				)
+			)
+			
+			if /i %%c==print (
+				if exist "%E_WorkingDirectory%\%class%.dmcclass.dmcmeta" (
+					for /f "usebackq tokens=1,2 delims==" %%A in ("%E_WorkingDirectory%\%class%.dmcclass.dmcmeta") do (
+						echo Key: "%%A", Value: "%%B"
+					)
+				)
+			)
+		)
+		
+		if /i %%b==reload (
+			if %E_Debug%==true (
+				echo [DMCNet] Environment reloaded and class loader called with current pushed class
+			)
+			
+			call :loadClass
+		)
+		
+		if /i %%b==reloadNewInstance (
+			start core.bat class %class% %loc%
+		)
+	)
+	
+	if /i %%a==.. (
+		cd "%E_WorkingDirectory%"
+		
+		if %E_Debug%==true (
+			echo [DMCNet] Marked working directory
+		)
+	)
+	
+	if /i %%a==dir (
+		echo %CD%
+	)
+)
+
+for /f "%~1" %%a in ("%~2") do (
+	if %%a==lib (
+		if not exist "%PATH_LibFolder%\!%%b!\!%%b!.dmclib" (
+			echo Error: Library file structure invalid
+		) else (
+			for /f "usebackq tokens=1,2 delims==" %%A in ("%PATH_LibFolder%\!%%b!\!%%b!.dmclib") do (
+				if /i %%A==version.required (
+					if not %E_Version%==%%B (
+						echo Error: Required version mismatch; Library requires DMCNet version number '%%B', got '%E_Version%'
+					)
+				)
+				
+				if /i %%A==lib.required (
+					if not exist "%PATH_LibFolder%\%%B" (
+						echo Error: Required library '%%B' is not installed
+						goto:EOF
+					)
+				)
+			)
+			
+			pushd "%PATH_LibFolder%\!%%b!"
+			call lib_core.bat "%%c"
+			popd
+		)
+	)
+)

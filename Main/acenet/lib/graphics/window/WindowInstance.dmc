@@ -1,0 +1,12 @@
+#  This class is part of ACENet, and belongs to the ACENet developer.
+
+#  WindowInstance
+#  The actual class for the instance of any Window object.
+#  Internal class
+
+map ClassArguments get 0 WTicketFile
+
+ticket file WTicketFile
+
+ticket execute
+ticket pull

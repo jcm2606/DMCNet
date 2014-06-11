@@ -1,0 +1,11 @@
+class {
+exception trigger Class not found.
+
+push Text The class '
+push.fromRegister Text errorclass
+push Text ' could not be found.
+
+print Text
+
+pull Text
+}

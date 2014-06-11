@@ -1,0 +1,43 @@
+@echo off
+
+set param=%1
+
+set "input=%param:"=%"
+set "input=%input:'="%"
+
+for /f "tokens=1,2,3,4,5,6,7,8,9,10 delims=~" %%A in ("%input%") do (
+	if /i %%A==title (
+		if /i %%B==var (
+			if /i %%C==get (
+				set "%%D=%TITLE%"
+			)
+			
+			if /i %%C==set (
+				set "TITLE=%%D"
+			)
+		)
+		
+		if /i %%B==set (
+			title %%C
+		)
+	)
+	
+	if /i %%A==colour (
+		color %%B
+	)
+
+	if /i %%A==list (
+		"%E_WorkingDirectory%\api\GUI\BGUI.COM" "LIST" "%%B" "%%C" "%%D" "%%E"
+		call gui.bat
+	)
+	
+	if /i %%A==menu (
+		"%E_WorkingDirectory%\api\GUI\BGUI.COM" "MENU" "%%B" %%C
+		call gui.bat
+	)
+	
+	if /i %%A==drawRect (
+		"%E_WorkingDirectory%\api\GUI\BGUI.COM" "DRAW" "%%B" "%%C" "%%D" "%%E" "%%F"
+		call gui.bat
+	)
+)

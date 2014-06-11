@@ -1,0 +1,1142 @@
+@echo off
+
+:: Flags:
+::   -debug : Enables debugging output
+::   -showDOSOutput : Enables MS-DOS logging of pre-expansion code, useful for debugging
+::   -showBranding : Prints the environment branding (version number, flags parsed) after the configuration
+::                   map is loaded.
+
+:: Declaration of flags variable
+set E_Flags=%4
+
+if not x%E_Flags:-showDOSOutput=%==x%E_Flags% (
+	@echo on
+)
+
+setlocal EnableDelayedExpansion
+
+:: Input variable declaration
+set function=%1
+set args=%2
+set loc=%3
+set progParams=%4
+
+set E_Debug=false
+
+if not x%E_Flags:-debug=%==x%E_Flags% (
+	set E_Debug=true
+)
+
+if %E_Debug%==true (
+	echo [DMCNet] Declaring environment variables
+)
+
+
+
+:: Environment variable declaration
+set E_Version_Major=1
+set E_Version_Minor=7
+set E_Version=%E_Version_Major%.%E_Version_Minor%
+set "E_CoreObjMapPath=%loc:"=%\dmcnet.txt"
+set "E_CorePath=%loc:"=%"
+set TicketFile=ticket
+set TITLE=DMCNet %E_Version%
+
+
+
+if not x%E_Flags:-showBranding=%==x%E_Flags% (
+	echo DMCNet Update Package %E_Version%
+	echo Path: "%E_CorePath%\"
+	echo Flags: %E_Flags%
+)
+
+if %E_Debug%==true (
+	echo [DMCNet] Declaring pathing variables
+)
+
+
+
+:: Pathing declaration
+set PATH_Dev_SRC=%CD%\src
+set PATH_Dev_COMPILED=%CD%\compiled
+set PATH_Home=%homedrive%\
+set PATH_User=%userprofile%
+set PATH_UserAppdata=%appdata%
+set "PATH_LibFolder=%E_CorePath%\core\lib"
+set "PATH_TicketFolder=%E_CorePath%\core\ticket"
+
+:: User variable declaration
+set userName=%username%
+
+
+
+call :coreConfigMapLoad
+
+
+
+title %TITLE%
+
+
+
+if %E_Debug%==true (
+	echo [DMCNet] Importing libraries
+)
+
+if not exist "%PATH_LibFolder%" (
+	mkdir "%PATH_LibFolder%"
+)
+
+
+
+for /f "tokens=1 delims=" %%a in ('dir "%PATH_LibFolder%" /b /ad-r-h-a-s-i-l') do (
+	for /f "tokens=1 delims=" %%A in ('dir "%PATH_LibFolder%\%%a" /b /a-d-h-s') do (
+		for /f "tokens=1,2,3 delims=." %%B in ("%%A") do (
+			if %%C==dmclib (
+				set "lib_%%B=%%B"
+				
+				for /f "usebackq tokens=1,2 delims==" %%G in ("%PATH_LibFolder%\%%B\%%B.dmclib") do (
+					if /i %%G==lib.required (
+						if not exist "%PATH_LibFolder%\%%E" (
+							echo Error: Library '%%B' requires another library which does not seem to be installed, library '%%B' has been disabled
+						
+							set "lib_%%B="
+						)
+					)
+				)
+			)
+		)
+	)
+)
+
+
+
+:: Hook invoking
+::     Hook values:
+::       - "hookType": Validates the hookType variable, determining the type of hook the current read hook is.
+::                     For this invoke, this should be set to "start".
+::       - "runMode": Determines what DMCNet core function (whether to run a class or a command line) to invoke this
+::                    hook at. Valid modes are "line", and "class", invoking only on command line or class load
+::                    respectively. Ignore to invoke regardless.
+
+if exist "%PATH_LibFolder%\*.hook.dmc" (
+	for /f "tokens=1 delims=" %%a in ('dir "%PATH_LibFolder%" /b /a-h-s-d') do (
+		for /f "tokens=1,2,3 delims=." %%A in ("%%a") do (
+			if %%C==dmc (
+				if %%B==hook (
+					if %E_Debug%==true (
+						echo [DMCNet] Hook file detected with name '%%A'
+					)
+					
+					for /f "usebackq tokens=1,2,3" %%D in ("%PATH_LibFolder%\%%a") do (
+						if %%D==# (
+							if /i %%E==hookType (
+								if %%F==start (
+									set validHook=true
+								)
+							)
+							
+							if /i %%E==runMode (
+								set hookRunmode=%%F
+							)
+						)
+					)
+					
+					if defined validHook (
+						if defined hookRunmode (
+							if %func%==!hookRunmode! (
+								if %E_Debug%==true (
+									echo [DMCNet] Start hook loaded with name '%%A'
+								)
+							
+								call :process "usebackq tokens=1* eol=#", " ", "%PATH_LibFolder%\%%a"
+							)
+							
+						) else (
+							if %E_Debug%==true (
+								echo [DMCNet] Start hook loaded with name '%%A'
+							)
+						
+							call :process "usebackq tokens=1* eol=#", " ", "%PATH_LibFolder%\%%a"
+						)
+					)
+				)
+			)
+		)
+	)
+)
+
+
+
+if %function%==class goto func_run
+if %function%==line title DMCNet Command Line && goto prompt
+if %function%==project goto func_runProject
+
+
+
+echo Error: Command not recognised
+pause
+exit
+
+
+
+:func_run
+
+set class=%args%
+
+:loadClass
+
+for %%A in (%E_Flags%) do (
+	set "tempdata=%%A"
+	set "data=!tempdata:-=!"
+	
+	if not !data!=="" (
+		if not !data!==!%tempdata%! (
+			echo !data!
+			call core\array.bat add ClassArguments !data!
+		)
+	)
+)
+
+if %E_Debug%==true (
+	echo [DMCNet] Setting class variables
+)
+
+set C_ClassName=%class%
+set C_Title=DMCNet %E_Version% - %C_ClassName%
+set C_LaunchParams=%function% %args%
+set C_LaunchTime=%TIME%
+set C_LaunchDate=%DATE%
+set C_ClassParent=DMCNet.Core
+
+if not exist "%E_WorkingDirectory%\%class%.dmc" (
+	echo Error: File parsed does not exist.
+	pause
+	exit
+)
+
+if %E_Debug%==true (
+	echo [DMCNet] Checking for class metadata file
+)
+
+if exist "%E_WorkingDirectory%\%class%.dmc.dmcmeta" (
+	if %E_Debug%==true (
+		echo [DMCNet] Located class metadata, reading metadata map
+	)
+
+	for /f "usebackq tokens=1,2 delims==" %%a in ("%E_WorkingDirectory%\%class%.dmc.dmcmeta") do (
+		if %%a==class.name set E_ClassName=%%b
+		if %%a==class.version set E_ClassVersion=%%b
+		if %%a==class.parent set E_ClassParent=%%b
+	)
+)
+
+if %E_Debug%==true (
+	echo [DMCNet] Parsing class to processing
+)
+
+set C_LineCount=0
+
+for /F "tokens=1* delims=]" %%a in ('type "%E_WorkingDirectory%\%class%.dmc" ^| find /V /N ""') do (
+	set /a C_LineCount+=1
+)
+
+call :process "usebackq tokens=1* eol=#", " ", "%E_WorkingDirectory%\%class%.dmc"
+
+goto loadClass
+
+:prompt
+set /p "input=| "
+
+if not x%E_Flags:-debug=%==x%E_Flags% (
+	set E_Debug=true
+)
+
+:readInput
+if %E_Debug%==true (
+	echo [DMCNet] Parsing string "%input%" to processing
+)
+
+call :process "tokens=1* eol=#", " ", "%input%"
+
+goto prompt
+
+
+
+
+
+
+:func_runProject
+set project=%args%
+
+title DMCNet - Project: %project%
+
+if not exist "%E_WorkingDirectory%\%project%" (
+	echo Error: Project does not exist
+)
+
+set "E_WorkingDirectory=%CD%\%project%"
+
+if not exist "%E_WorkingDirectory%\%project%.dmcproject" (
+	echo Error: Project map is missing
+	pause
+	exit
+)
+
+for /f "usebackq tokens=1,2 eol=# delims==" %%a in ("%E_WorkingDirectory%\%project%.dmcproject") do (
+	if %%a==project.class.start set ProjectStartClass=%%b
+	if %%a==project.name set ProjectName=%%b
+	if %%a==project.version set ProjectVersion=%%b
+	if %%a==project.class.handler.end set ProjectEndHandlerClass=%%b
+)
+
+if not "%ProjectStartClass%"=="" (
+	set class=%ProjectStartClass%
+	
+	goto loadClass
+)
+
+echo Error: Project does not contain a start class
+pause
+exit
+
+
+
+
+
+:: Start common calls
+
+:coreConfigMapLoad
+
+if %E_Debug%==true (
+	echo [DMCNet] Importing data from core configuration map
+)
+
+if exist "%E_CoreObjMapPath%" (
+	for /f "usebackq tokens=1,2,3,4,5,6 delims=: eol=#" %%a in ("%E_CoreObjMapPath%") do (
+		set "%%a=%%b"
+		
+		if %%a==E_WorkingDirectory (
+			set "%%a="
+		
+			set "E_WorkingDirectory=%CD%\%%b"
+			
+			if %%b==CD (
+				set "E_WorkingDirectory=%CD%"
+			)
+		)
+	)
+) else (
+	echo # START CORE ENVIRONMENT VALUES>>"%E_CoreObjMapPath%"
+	echo E_Debug:false>>"%E_CoreObjMapPath%"
+	echo E_WorkingDirectory:CD>>"%E_CoreObjMapPath%"
+	echo # END CORE ENVIRONMENT VALUES>>"%E_CoreObjMapPath%"
+	echo # Place custom values you wish to be loaded into>>"%E_CoreObjMapPath%"
+	echo # DMCNet's environment after here>>"%E_CoreObjMapPath%"
+	
+	echo New DMCNet environment object map generated.
+	echo Please restart DMCNet.
+	pause
+	exit
+)
+
+if not x%E_Flags:-debug=%==x%E_Flags% (
+	set E_Debug=true
+)
+
+goto:EOF
+
+:process
+
+set line=1
+
+for /f "%~1 delims=%~2" %%a in ("%~3") do (
+	
+	if /i %%a==write call :out "!%%b!"
+	if /i %%a==push (
+		for /f "tokens=1* delims= " %%c in ("%%b") do (
+			set varData=!%%c!
+	
+			call :push "normal", "%%c", "%%d"
+		)
+	)
+	if /i %%a==push.fromPrompt (
+		for /f "tokens=1* delims= " %%c in ("%%b") do (
+			set varData=!%%c!
+	
+			call :push "fromInput", "%%c", "%%d"
+		)
+	)
+	if /i %%a==push.fromRegister (
+		for /f "tokens=1* delims= " %%c in ("%%b") do (
+			set varData=!%%c!
+	
+			call :push "fromRegister", "%%c", "!%%d!"
+		)
+	)
+	if /i %%a==pull call :pull "%%b"
+	if /i %%a==end call :end
+	if /i %%a==loop (
+		for /f "tokens=1* delims= " %%c in ("%%b") do (
+			call :loop "%%c", "%%d"
+		)
+	)
+	if /i %%a==math (
+		for /f "tokens=1,2* delims= " %%c in ("%%b") do (
+			set varData=!%%d!
+			set number2=!%%e!
+			
+			if "!number2!"=="" (
+				call :math "%%c", "%%d", "%%e"
+			) else (
+				call :math "%%c", "%%d", "!number2!"
+			)
+		)
+	)
+	if /i %%a==if (
+		for /f "tokens=1,2,3* delims= " %%c in ("%%b") do (
+			set CONDITION_1=%%c
+			set CONDITION_2=%%e
+		
+			
+		
+			if defined %%c (
+				set CONDITION_1=!%%c!
+			)
+			
+			if defined %%e (
+				set CONDITION_2=!%%e!
+			)
+		
+			call :if "%%d", "!CONDITION_1!", "!CONDITION_2!", "%%f"
+		)
+	)
+	if /i %%a==file (
+		for /f "tokens=1,2* delims= " %%c in ("%%b") do (
+			set fileData=!%%d!
+			set writeData=!%%e!
+		
+			call :file "%%c", "%%d", "%%e"
+		)
+	)
+	if /i %%a==cmd (
+		call :cmd "%%b"
+	)
+	if /i %%a==ticket (
+		for /f "tokens=1* delims= " %%c in ("%%b") do (
+			set writeData=!%%d!
+		
+			call :ticket "%%c", "%%d"
+		)
+	)
+	if /i %%a==include (
+		for /f "tokens=1,2* delims= " %%c in ("%%b") do (
+			call :tag "define", "%%c", "%%d"
+		)
+	)
+	if /i %%a==@ (
+		for /f "tokens=1* delims= " %%c in ("%%b") do (
+			call :tag "invoke", "%%c", "%%d"
+		)
+	)
+	if /i %%a==@- (
+		for /f "tokens=1* delims= " %%c in ("%%b") do (
+			call :tag "invokeFine", "%%c", "%%d"
+		)
+	)
+	if /i %%a==@+ (
+		for /f "tokens=1* delims= " %%c in ("%%b") do (
+			call :tag "invokeFineContinue", "%%c", "%%d"
+		)
+	)
+	if /i %%a==class (
+		set class=%%b
+		
+		set completed=true
+	)
+	if /i %%a==reload (
+		goto loadClass
+	)
+	if /i %%a==pushLocal (
+		call :pushLocal
+	)
+	if /i %%a==pullLocal (
+		call :pullLocal
+	)
+	if /i %%a==map (
+		for /f "tokens=1,2* delims= " %%c in ("%%b") do (
+			call :map "%%d", "%%c", "%%e"
+		)
+	)
+	
+	for /f "tokens=1,2,3,4,5 delims=." %%A in ("%%a") do (
+		if /i %%A==system (
+			if /i %%B==register (
+				if /i %%C==list (
+					if /i %%D==print (
+						call :system.register.list.print
+					)
+					
+					if /i %%D==clear (
+						call :system.register.list.clear
+					)
+				)
+				
+				if /i %%C==getValueOf (
+					for /f "tokens=1* delims= " %%c in ("%%b") do (
+						call :system.register.getvalue "%%c", "%%d"
+					)
+				)
+			)
+			
+			if /i %%B==env (
+				if /i %%C==value (
+					for /f "tokens=1* delims= " %%c in ("%%b") do (
+						call :system.environment.value "%%D", "%%c", "%%d"
+					)
+				)
+			)
+		)
+		
+		if /i %%A==class (
+			if /i %%B==args (
+				if /i %%C==get (
+					for /f "tokens=1* delims= " %%c in ("%%b") do (
+						call :class.arguments.get "%%c", "%%d"
+					)
+				)
+			)
+		)
+	)
+	
+	set /a line+=1
+	
+	if not defined completed (
+		echo [DMCNet] Error, command did not complete successfully.
+		echo [DMCNet] Command: 
+		echo [DMCNet]          '%%a %%b' @ Line !line!
+		echo.
+	)
+	
+	set "completed="
+)
+
+goto:EOF
+
+
+
+:system.register.list.print
+
+call core\array.bat tostring REGISTER_LIST string
+
+set "string=%string:[=%"
+set "string=%string:]=%"
+set "string=%string:,= %"
+
+for %%A in (%string%) do (
+	echo [ Key: %%A, Value: !%%A! ]
+)
+
+set completed=true
+
+goto:EOF
+
+:system.register.list.clear
+
+call core\array.bat tostring REGISTER_LIST string
+
+set "string=%string:[=%"
+set "string=%string:]=%"
+set "string=%string:,= %"
+
+for %%A in (%string%) do (
+	set "%%A="
+)
+
+set completed=true
+
+goto:EOF
+
+:system.environment.value
+set func=%~1
+set valueName=%~2
+set value=%~3
+
+if %func%==set (
+	set E_%valueName%=%value%
+	
+	set completed=true
+)
+
+goto:EOF
+
+:class.arguments.get
+set index=%~1
+set varname=%~2
+
+call core\array.bat getitem ClassArguments %index% %varname%
+
+set completed=true
+
+goto:EOF
+
+:system.register.getvalue
+set registerName=%~1
+set registerName=!%registerName%!
+set varName=%~2
+
+set "%varName%=!%registerName%!"
+
+set completed=true
+
+goto:EOF
+
+:out
+set data=%~1
+
+echo %data%
+
+set completed=true
+
+goto:EOF
+
+:push
+set func=%~1
+set register=%~2
+set data=%~3
+
+if %func%==normal (
+	if "%data%"=="/separate" (
+		if defined %register% (
+			set "%register%=!varData! "
+			
+			if %E_Debug%==true (
+				echo [DMCNet] Pushed data ' ' to register '%register%'
+			)
+			
+			set completed=true
+		) else (
+			set "%register%= "
+			
+			call core\array.bat add REGISTER_LIST %register%
+
+			if defined LOG_REGISTER_PUSHES (
+				call core\array.bat add REGISTER_POOL %register%
+			)
+			
+			if %E_Debug%==true (
+				echo [DMCNet] Pushed data ' ' to register '%register%'
+			)
+			
+			set completed=true
+		)
+	) else (
+		if defined %register% (
+			set "%register%=!varData!%data%"
+			
+			if %E_Debug%==true (
+				echo [DMCNet] Pushed data '%data%' to register '%register%'
+			)
+			
+			set completed=true
+		) else (
+			set "%register%=%data%"
+			
+			call core\array.bat add REGISTER_LIST %register%
+			
+			if defined LOG_REGISTER_PUSHES (
+				call core\array.bat add REGISTER_POOL %register%
+			)
+			
+			if %E_Debug%==true (
+				echo [DMCNet] Pushed data '%data%' to register '%register%'
+			)
+			
+			set completed=true
+		)
+	)
+)
+
+if %func%==fromInput (
+	set /p %register%=%data%
+	
+	call core\array.bat add REGISTER_LIST %register%
+			
+	if %E_Debug%==true (
+		echo [DMCNet] Pushed data '!%register%!' from user input to register '%register%'
+	)
+	
+	set completed=true
+)
+
+if %func%==fromRegister (
+	set %register%=!varData!!data!
+	
+	if %E_Debug%==true (
+		echo [DMCNet] Pushed data '!data!' from register '%data%' to register '%register%'
+	)
+	
+	set completed=true
+)
+
+if %func%==toclipboard (
+	echo %register% | clip
+	
+	if %E_Debug%==true (
+		echo [DMCNet] Pushed data '!%register%!' from register '%register%' to clipboard
+	)
+	
+	set completed=true
+)
+
+goto:EOF
+
+:math
+set func=%~1
+set register=%~2
+set "data=%~3"
+
+if /i %func%==increment (
+	set /a %register%=!varData!+%data%
+	
+	if %E_Debug%==true (
+		echo [DMCNet] Incremented value in register '%register%' by '%data%'
+	)
+	
+	set completed=true
+)
+
+if /i %func%==decrement (
+	set /a %register%=!varData!-%data%
+	
+	if %E_Debug%==true (
+		echo [DMCNet] Decremented value in register '%register%' by '%data%'
+	)
+	
+	set completed=true
+)
+
+if /i %func%==multiply (
+	set /a %register%=!varData!*%data%
+	
+	if %E_Debug%==true (
+		echo [DMCNet] Multiplied value in register '%register%' by '%data%'
+	)
+	
+	set completed=true
+)
+
+if /i %func%==divide (
+	set /a %register%=!varData!/%data%
+	
+	if %E_Debug%==true (
+		echo [DMCNet] Divided value in register '%register%' by '%data%'
+	)
+	
+	set completed=true
+)
+
+goto:EOF
+
+:pull
+set register=%~1
+
+set "%register%="
+
+if %E_Debug%==true (
+	echo [DMCNet] Pulled data from register '%register%'
+)
+
+set completed=true
+
+goto:EOF
+
+:end
+
+if %function%==line (
+	if not "%ProjectEndHandlerClass%"=="" (
+		call :process "usebackq tokens=1,2,3,4,5,6,7,8,9 delims=> eol=#", "%E_WorkingDirectory%\%ProjectEndHandlerClass%.dmcclass"
+	)
+
+	echo.
+	echo [DMCNet] Class has ended
+	goto prompt
+) else (
+	if not "%ProjectEndHandlerClass%"=="" (
+		call :process "usebackq tokens=1,2,3,4,5,6,7,8,9 delims=> eol=#", "%E_WorkingDirectory%\%ProjectEndHandlerClass%.dmcclass"
+	)
+
+	echo.
+	echo [DMCNet] Class has ended
+	pause
+	exit
+)
+
+goto:EOF
+
+:cmd
+set data=%~1
+
+%data%
+
+if %E_Debug%==true (
+	echo [DMCNet] Executed command '%data%' in Windows Command Prompt
+)
+
+set completed=true
+
+goto:EOF
+
+:loop
+set data1=%~1
+set data2=%~2
+
+set TimesLooped=0
+set TimesToLoop=%data1%
+
+if %E_Debug%==true (
+	echo [DMCNet] Looping of command '%data2%' %TimesToLoop% times commenced
+)
+		
+:LOOP_INTERNAL_LABEL
+
+if not %TimesLooped%==%TimesToLoop% (
+	call :process "tokens=1* eol=#", " ", "%data2%"
+
+	set /a TimesLooped+=1
+	
+	call :LOOP_INTERNAL_LABEL
+)
+
+if %E_Debug%==true (
+	echo [DMCNet] Looping of command '%data2%' ended
+)
+
+set completed=true
+
+goto:EOF
+
+:if
+set op=%~1
+set data1=%~2
+set data2=%~3
+set code=%~4
+
+if /i %op%==eq (
+	if %data1%==%data2% (
+		call :process "tokens=1* eol=#", " ", "%code%"
+	)
+	
+	set completed=true
+)
+
+if /i %op%==neq (
+	if not %data1%==%data2% (
+		call :process "tokens=1* eol=#", " ", "%code%"
+	)
+	
+	set completed=true
+)
+
+if /i %op%==gtr (
+	if %data1% GTR %data2% (
+		call :process "tokens=1* eol=#", " ", "%code%"
+	)
+	
+	set completed=true
+)
+
+if /i %op%==lss (
+	if %data1% LSS %data2% (
+		call :process "tokens=1* eol=#", " ", "%code%"
+	)
+	
+	set completed=true
+)
+
+if /i %op%==geq (
+	if %data1% GEQ %data2% (
+		call :process "tokens=1* eol=#", " ", "%code%"
+	)
+	
+	set completed=true
+)
+
+if /i %op%==leq (
+	if %data1% LEQ %data2% (
+		call :process "tokens=1* eol=#", " ", "%code%"
+	)
+	
+	set completed=true
+)
+
+goto:EOF
+
+:file
+set func=%~1
+set "file=%~2"
+set data=%~3
+
+if /i %func%==commit (
+	if not "!writeData!"=="" (
+		if not "!fileData!"=="" (
+			echo !writeData!>>!fileData!
+		
+			if %E_Debug%==true (
+				echo [DMCNet] Committed data '!writeData!' to file '!fileData!'
+			)
+		) else (
+			echo !writeData!>>%file%
+			
+			if %E_Debug%==true (
+				echo [DMCNet] Committed data '!writeData!' to file '%file%'
+			)
+		)
+	) else (
+		if not "%fileData%"=="" (
+			echo %data%>>!fileData!
+			
+			if %E_Debug%==true (
+				echo [DMCNet] Committed data '%data%' to file '!fileData!'
+			)
+		) else (
+			echo %data%>>%file%
+			
+			if %E_Debug%==true (
+				echo [DMCNet] Committed data '%data%' to file '%file%'
+			)
+		)
+	)
+	
+	set completed=true
+)
+
+if /i %func%==delete (
+	if not "!fileData!"=="" (
+		del !fileData!
+		
+		if %E_Debug%==true (
+			echo [DMCNet] Deleted file '!fileData!'
+		)
+	) else (
+		del %file%
+		
+		if %E_Debug%==true (
+			echo [DMCNet] Deleted file '%file%'
+		)
+	)
+	
+	set completed=true
+)
+
+if /i %func%==execute (
+	if not "!fileData!"=="" (
+		start !fileData!
+	) else (
+		start %file%
+	)
+	
+	set completed=true
+)
+
+if /i %func%==load (
+	if not "!fileData!"=="" (
+		call !fileData!
+	) else (
+		call %file%
+	)
+	
+	set completed=true
+)
+
+goto:EOF
+
+:cmd
+set data=%~1
+
+%data%
+
+goto:EOF
+
+:ticket
+set func=%~1
+set data=%~2
+
+if /i %func%==writeTo (
+	if not "!writeData!"=="" (
+		echo !writeData!>>core\ticket\%TicketFile%.txt
+	) else (
+		echo %data%>>core\ticket\%TicketFile%.txt
+	)
+	
+	set completed=true
+)
+
+if /i %func%==file (
+	set TicketFile=%data%
+	
+	set completed=true
+)
+
+if /i %func%==finalise (
+	if not exist core\ticket\%TicketFile%.tckt (
+		if exist core\ticket\%TicketFile%.txt (
+			ren core\ticket\%TicketFile%.txt %TicketFile%.tckt
+		)
+	)
+	
+	set completed=true
+)
+
+if /i %func%==execute (
+	if exist core\ticket\%TicketFile%.tckt (
+		call :process "usebackq tokens=1* eol=#", " ", "core\ticket\%TicketFile%.tckt"
+	)
+	
+	set completed=true
+)
+
+if /i %func%==pull (
+	if exist core\ticket\%TicketFile%.tckt (
+		del core\ticket\%TicketFile%.tckt
+	)
+	
+	set completed=true
+)
+
+if /i %func%==pullRaw (
+	if exist core\ticket\%TicketFile%.txt (
+		del core\ticket\%TicketFile%.txt
+	)
+	
+	set completed=true
+)
+
+if /i %func%==importRegisterMap (
+	if exist core\ticket\%TicketFile%.tckt (
+		for /f "tokens=1* eol=# delims==" %%A in (core\ticket\%TicketFile%.tckt) do (
+			set %%A=%%B
+		)
+	)
+	
+	set completed=true
+)
+
+goto:EOF
+
+:tag
+set func=%~1
+set commandName=%~2
+set commandScript=%~3
+
+if %func%==define (
+	set CTag_%commandName%=%commandScript%.dmc
+	
+	set completed=true
+)
+
+if %func%==invoke (
+	if exist !CTag_%commandName%! (
+		if not defined FineInvokeCalled (
+			if defined InclusionArguments[0] (
+				call core\array.bat clear InclusionArguments
+			)
+			
+			for %%A in (%~3) do (
+				call core\array.bat add InclusionArguments %%A
+			)
+		
+			call :process "usebackq tokens=1* eol=#", " ", "!CTag_%commandName%!"
+
+			call core\array.bat clear InclusionArguments
+		)
+	)
+	
+	set completed=true
+)
+
+if %func%==invokeFine (
+	if exist !CTag_%commandName%! (
+		set FineInvokeCalled=true
+	
+		call core\array.bat clear InclusionArguments
+	
+		for %%A in (%~3) do (
+			call core\array.bat add InclusionArguments %%A
+		)
+	)
+	
+	set completed=true
+)
+
+if %func%==invokeFineContinue (
+	set "FineInvokeCalled="
+	
+	call :process "usebackq tokens=1* eol=#", " ", "!CTag_%commandName%!"
+	
+	call core\array.bat clear InclusionArguments
+	
+	set completed=true
+)
+
+goto:EOF
+
+:pushLocal
+
+set LOG_REGISTER_PUSHES=true
+
+set completed=true
+
+goto:EOF
+
+:pullLocal
+
+set "LOG_REGISTER_PUSHES="
+
+call core\array.bat tostring REGISTER_POOL string
+
+set "string=%string:[=%"
+set "string=%string:]=%"
+set "string=%string:,= %"
+
+for %%A in (%string%) do (
+	set "%%A="
+)
+
+set completed=true
+
+goto:EOF
+
+:map
+set func=%~1
+set arrayName=%~2
+set data=%~3
+
+if /i %func%==add (
+	call core\array.bat add %arrayName% %data%
+	
+	set completed=true
+)
+
+if /i %func%==get (
+	for /f "tokens=1,2* delims= " %%A in ("%data%") do (
+		call core\array.bat getitem %arrayName% %%A %%B
+	)
+	
+	set completed=true
+)
+
+if /i %func%==set (
+	for /f "tokens=1,2* delims= " %%A in ("%data%") do (
+		call core\array.bat set %arrayName% %%A %%B
+	)
+	
+	set completed=true
+)
+
+if /i %func%==toString (
+	call core\array.bat tostring %arrayName% %data%
+	
+	set completed=true
+)
+
+goto:EOF

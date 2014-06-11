@@ -1,0 +1,59 @@
+Done:
+
+
+Todo:
+- Flesh out ACENet and implement more ideas
+
+Ideas:
+- "Live" class compilation
+	- Essentially, you can tell ACENet to basically "live-compile" text files into classes. This means that ACENet will compile a text document pre-session-build and use the resultant class in DMCNet
+	- This would allow for dynamic class creation
+	
+- File Patcher integration
+	- Will include the File Patcher script
+	- Developers can interface with the File Patcher through ACENet commands, patching any files currently in the working directory
+	
+- Utility class library
+	- A library-like collection of DMCNet classes, which can be used as Inclusions
+	- POSSIBLY, may have to be installed separately depending on the function, like file I/O utilities will be one package, meanwhile graphics utilities are part of another
+	- File library
+		- Configuration
+			- A package of utility classes which use Memory Record Files to store data for settings
+			- A configuration map will have to be "loaded into" the environment, the file location being stored in memory
+		- Memory record files
+			- A standard text document, but each line has a unique bit of data, in the form of '"<String ID>":"<data>"'
+			- The record file can essentially be used to store data, with each data entry having it's own unique ID and file line
+			- Would allow persisting data to be stored between sessions
+			- Some entries can have a set of properties, such as access rules (public, private, global)
+				- Public will basically allow any session to view this entry, as long as they are able to locally view the file (ie it's in the Working Directory, or a subdirectory, or the Core Directory)
+				- Private will only allow sessions with listed IDs to view this entry
+				- Global will allow any environment to view this file, regardless of operation path (ie it doesn't need to be in the Working Directory / Core Directory)
+			- NOTE: MRF's have been implemented at the base
+		- File utility
+			- An objective File instance
+			- Set to a file path on the file system
+			- Can be used to interact with other libraries through this particular instance
+				- For example, you can provide a File instance instead of a file name / path to an MRF handler to instead interact with the File object instance
+	- Object library
+		- Can expand upon the base object function within DMCNet
+		- Programs can define custom Object types, and reference back these Object's in code
+		- Two types of Objects dynamic and static
+			- Dynamic Objects can be edited after their declared, just like normal registers within DMCNet
+			- Static Objects can only be declared once, after that, they cannot be edited through the Object system within ACENet
+	- Graphics library
+		- Window library
+			- Operates using 'Window' objects
+				- Separate instances of separate consoles which can each be controlled individually
+			- Allows for separate sub-class console windows
+				- Each console window being controlled using tickets, each ticket assigned to the specific 'Window' object instance
+	- Timer library
+		- A running ticker timer, able to execute a specific command every X seconds
+			
+- Sub-sessions
+	- These sessions can be a bit complicated, but they essentially belong to any application which implements them, and said application can interface and interact with these through local network systems like the Ticket API
+	- Can be used for basic debugging, writing to another console window can prove a good debugging tool
+	- Semi-implemented using the Window library
+	
+- Class debugging
+	- Perhaps could include an ability to essentially debug the class
+	- The class gets executed in one window, but any data is printed on another, but both windows belong to the same session

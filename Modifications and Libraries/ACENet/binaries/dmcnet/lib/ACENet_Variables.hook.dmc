@@ -1,0 +1,6 @@
+# ACENet_Variables.
+# Hook class for ACENet variable declaration.
+
+# subscribe START
+
+if PATH_ACENET_Lib ndeclared _ push PATH_ACENET_Lib acenet\lib

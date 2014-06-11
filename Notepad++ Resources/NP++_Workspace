@@ -1,0 +1,144 @@
+<NotepadPlus>
+    <Project name="DMCNet">
+        <Folder name="acenet">
+            <Folder name="dmcnet">
+                <Folder name="lib">
+                    <File name="C:\Users\Jake\Desktop\Batch Development\DMCNet\Main\acenet\dmcnet\lib\ACENet_Variables.hook.dmc" />
+                </Folder>
+            </Folder>
+            <Folder name="lib">
+                <Folder name="data">
+                    <Folder name="input">
+                        <File name="C:\Users\Jake\Desktop\Batch Development\DMCNet\Main\acenet\lib\data\input\FileInput.dmc" />
+                    </Folder>
+                    <Folder name="object">
+                        <File name="C:\Users\Jake\Desktop\Batch Development\DMCNet\Main\acenet\lib\data\object\DynamicObject.dmc" />
+                        <File name="C:\Users\Jake\Desktop\Batch Development\DMCNet\Main\acenet\lib\data\object\Object.dmc" />
+                        <File name="C:\Users\Jake\Desktop\Batch Development\DMCNet\Main\acenet\lib\data\object\ObjectScript.bat" />
+                    </Folder>
+                </Folder>
+                <Folder name="file">
+                    <Folder name="config">
+                        <File name="C:\Users\Jake\Desktop\Batch Development\DMCNet\Main\acenet\lib\file\config\ConfigScript.bat" />
+                        <File name="C:\Users\Jake\Desktop\Batch Development\DMCNet\Main\acenet\lib\file\config\Configuration.dmc" />
+                    </Folder>
+                    <Folder name="mrf">
+                        <File name="C:\Users\Jake\Desktop\Batch Development\DMCNet\Main\acenet\lib\file\mrf\MRFHandler.dmc" />
+                        <File name="C:\Users\Jake\Desktop\Batch Development\DMCNet\Main\acenet\lib\file\mrf\MRFHandlerScript.bat" />
+                    </Folder>
+                </Folder>
+                <Folder name="graphics">
+                    <Folder name="draw">
+                        <File name="C:\Users\Jake\Desktop\Batch Development\DMCNet\Main\acenet\lib\graphics\draw\DrawBounds.dmc" />
+                        <File name="C:\Users\Jake\Desktop\Batch Development\DMCNet\Main\acenet\lib\graphics\draw\DrawBoundsScript.bat" />
+                        <File name="C:\Users\Jake\Desktop\Batch Development\DMCNet\Main\acenet\lib\graphics\draw\DrawBox.dmc" />
+                        <File name="C:\Users\Jake\Desktop\Batch Development\DMCNet\Main\acenet\lib\graphics\draw\DrawCustom.dmc" />
+                        <File name="C:\Users\Jake\Desktop\Batch Development\DMCNet\Main\acenet\lib\graphics\draw\DrawScript.bat" />
+                    </Folder>
+                    <Folder name="window">
+                        <File name="C:\Users\Jake\Desktop\Batch Development\DMCNet\Main\acenet\lib\graphics\window\Window.dmc" />
+                        <File name="C:\Users\Jake\Desktop\Batch Development\DMCNet\Main\acenet\lib\graphics\window\WindowInstance.dmc" />
+                        <File name="C:\Users\Jake\Desktop\Batch Development\DMCNet\Main\acenet\lib\graphics\window\WindowScript.bat" />
+                        <File name="C:\Users\Jake\Desktop\Batch Development\DMCNet\Main\acenet\lib\graphics\window\WindowScriptPushClass.bat" />
+                    </Folder>
+                </Folder>
+                <Folder name="instance">
+                    <Folder name="thread">
+                        <File name="C:\Users\Jake\Desktop\Batch Development\DMCNet\Main\acenet\lib\instance\thread\MultiThread.dmc" />
+                        <File name="C:\Users\Jake\Desktop\Batch Development\DMCNet\Main\acenet\lib\instance\thread\MultiThreadDefine.bat" />
+                        <File name="C:\Users\Jake\Desktop\Batch Development\DMCNet\Main\acenet\lib\instance\thread\MultiThreadStart.bat" />
+                        <File name="C:\Users\Jake\Desktop\Batch Development\DMCNet\Main\acenet\lib\instance\thread\Thread.dmc" />
+                        <File name="C:\Users\Jake\Desktop\Batch Development\DMCNet\Main\acenet\lib\instance\thread\ThreadStart.bat" />
+                    </Folder>
+                </Folder>
+                <Folder name="listener">
+                    <Folder name="keyboard">
+                        <File name="C:\Users\Jake\Desktop\Batch Development\DMCNet\Main\acenet\lib\listener\keyboard\bg.exe" />
+                        <File name="C:\Users\Jake\Desktop\Batch Development\DMCNet\Main\acenet\lib\listener\keyboard\KeyListener.dmc" />
+                        <File name="C:\Users\Jake\Desktop\Batch Development\DMCNet\Main\acenet\lib\listener\keyboard\KeyListenerScript.bat" />
+                    </Folder>
+                    <Folder name="mouse">
+                        <File name="C:\Users\Jake\Desktop\Batch Development\DMCNet\Main\acenet\lib\listener\mouse\colous.exe" />
+                        <File name="C:\Users\Jake\Desktop\Batch Development\DMCNet\Main\acenet\lib\listener\mouse\MouseListener.dmc" />
+                        <File name="C:\Users\Jake\Desktop\Batch Development\DMCNet\Main\acenet\lib\listener\mouse\MouseListenerScript.bat" />
+                    </Folder>
+                </Folder>
+                <Folder name="util">
+                    <Folder name="game">
+                        <Folder name="controller">
+                            <Folder name="key">
+                                <File name="C:\Users\Jake\Desktop\Batch Development\DMCNet\Main\acenet\lib\util\game\controller\key\KeyInput.dmc" />
+                            </Folder>
+                        </Folder>
+                        <Folder name="matrix">
+                            <File name="C:\Users\Jake\Desktop\Batch Development\DMCNet\Main\acenet\lib\util\game\matrix\Matrix.dmc" />
+                            <File name="C:\Users\Jake\Desktop\Batch Development\DMCNet\Main\acenet\lib\util\game\matrix\MatrixScript.bat" />
+                        </Folder>
+                    </Folder>
+                    <Folder name="keyboard">
+                        <File name="C:\Users\Jake\Desktop\Batch Development\DMCNet\Main\acenet\lib\util\keyboard\Key.dmc" />
+                        <File name="C:\Users\Jake\Desktop\Batch Development\DMCNet\Main\acenet\lib\util\keyboard\KeyCodeList.txt" />
+                        <File name="C:\Users\Jake\Desktop\Batch Development\DMCNet\Main\acenet\lib\util\keyboard\KeyScript.bat" />
+                    </Folder>
+                </Folder>
+            </Folder>
+        </Folder>
+        <Folder name="core">
+            <Folder name="data">
+                <Folder name="template">
+                    <Folder name="dev">
+                        <File name="C:\Users\Jake\Desktop\Batch Development\DMCNet\Main\core\data\template\dev\decompile.txt" />
+                        <File name="C:\Users\Jake\Desktop\Batch Development\DMCNet\Main\core\data\template\dev\package.txt" />
+                        <File name="C:\Users\Jake\Desktop\Batch Development\DMCNet\Main\core\data\template\dev\packageProject.txt" />
+                        <File name="C:\Users\Jake\Desktop\Batch Development\DMCNet\Main\core\data\template\dev\recompile.txt" />
+                    </Folder>
+                </Folder>
+            </Folder>
+            <Folder name="exception">
+                <File name="C:\Users\Jake\Desktop\Batch Development\DMCNet\Main\core\exception\AbstractFunctionOverrideException.dmc" />
+                <File name="C:\Users\Jake\Desktop\Batch Development\DMCNet\Main\core\exception\ClassNotFoundException.dmc" />
+                <File name="C:\Users\Jake\Desktop\Batch Development\DMCNet\Main\core\exception\InheritInvalidException.dmc" />
+            </Folder>
+            <Folder name="lib" />
+            <File name="C:\Users\Jake\Desktop\Batch Development\DMCNet\Main\core\array.bat" />
+            <File name="C:\Users\Jake\Desktop\Batch Development\DMCNet\Main\core\core.bat" />
+            <File name="C:\Users\Jake\Desktop\Batch Development\DMCNet\Main\core\dev.bat" />
+            <File name="C:\Users\Jake\Desktop\Batch Development\DMCNet\Main\core\lib.bat" />
+            <File name="C:\Users\Jake\Desktop\Batch Development\DMCNet\Main\core\patch.bat" />
+            <File name="C:\Users\Jake\Desktop\Batch Development\DMCNet\Main\core\property.bat" />
+            <File name="C:\Users\Jake\Desktop\Batch Development\DMCNet\Main\core\stringutil.bat" />
+        </Folder>
+        <File name="C:\Users\Jake\Desktop\Batch Development\DMCNet\Main\class.dmc" />
+        <File name="C:\Users\Jake\Desktop\Batch Development\DMCNet\Main\dmcnet.txt" />
+        <File name="C:\Users\Jake\Desktop\Batch Development\DMCNet\Main\launch_gui.bat" />
+        <File name="C:\Users\Jake\Desktop\Batch Development\DMCNet\Main\README.txt" />
+    </Project>
+    <Project name="ACL">
+        <Folder name="data">
+            <Folder name="plugins" />
+            <File name="C:\Users\Jake\Desktop\Batch Development\Advanced Command Line\data\ACL_BASE.bat" />
+            <File name="C:\Users\Jake\Desktop\Batch Development\Advanced Command Line\data\ACL_DISPLAY.bat" />
+            <File name="C:\Users\Jake\Desktop\Batch Development\Advanced Command Line\data\ACL_LINE.bat" />
+            <File name="C:\Users\Jake\Desktop\Batch Development\Advanced Command Line\data\ACL_PLUGIN.bat" />
+            <File name="C:\Users\Jake\Desktop\Batch Development\Advanced Command Line\data\config.ini" />
+        </Folder>
+        <File name="C:\Users\Jake\Desktop\Batch Development\Advanced Command Line\ACL.bat" />
+    </Project>
+    <Project name="BATStack">
+        <Folder name="DMCNet">
+            <Folder name="bslib">
+                <File name="C:\Users\Jake\Desktop\Batch Development\BATStack\DMCNet\bslib\BSLib.dmc" />
+                <File name="C:\Users\Jake\Desktop\Batch Development\BATStack\DMCNet\bslib\BSLibScript.bat" />
+            </Folder>
+            <Folder name="bs_plugin">
+                <File name="C:\Users\Jake\Desktop\Batch Development\BATStack\DMCNet\bs_plugin\dmcnet_interface.bat" />
+                <File name="C:\Users\Jake\Desktop\Batch Development\BATStack\DMCNet\bs_plugin\dmcnet_interface.bs" />
+            </Folder>
+        </Folder>
+        <Folder name="Resources">
+            <File name="C:\Users\Jake\Desktop\Batch Development\BATStack\Resources\NP++_Lang.xml" />
+        </Folder>
+        <File name="C:\Users\Jake\Desktop\Batch Development\BATStack\bs.bat" />
+        <File name="C:\Users\Jake\Desktop\Batch Development\BATStack\Todo.txt" />
+    </Project>
+</NotepadPlus>

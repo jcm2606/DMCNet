@@ -1,0 +1,63 @@
+@echo off
+set func=%1
+set args=%2
+
+if %func%==build goto buildAPI
+if %func%==pull goto deleteAPI
+
+echo Error: Command not recognised
+pause
+exit
+
+
+:buildAPI
+
+if exist core\api\%args% (
+	echo Error: API has already been built in this current installation
+	pause
+	exit
+)
+
+mkdir core\api\%args%
+
+for /f "tokens=1,2,3,4 delims=>" %%a in (%args%_API\%args%.apiset) do (
+	if %%a==extract (
+		timeout /t 2 /nobreak >nul
+		copy %args%_API\%%b.src.txt core\api\%args%
+		
+		ren core\api\%args%\%%b.src.txt %%b.%%c
+	)
+	
+	if %%a==locate (
+		timeout /t 1 /nobreak >nul
+		copy %args%_API\%%b core\api\%args%
+	)
+	
+	if %%a==new (
+		if %%b==folder (
+			timeout /t 1 /nobreak >nul
+			mkdir core\api\%args%\%%c
+		)
+	)
+	
+	if %%a==move (
+		timeout /t 1 /nobreak >nul
+		move core\api\%args%\%%b core\api\%args%\%%c
+	)
+	
+	if %%a==rename (
+		timeout /t 1 /nobreak >nul
+		ren core\api\%args%\%%b %%c
+	)
+)
+exit
+
+:deleteAPI
+if exist core\api\%args% (
+	rmdir /s /q core\api\%args%
+) else (
+	echo Error: API does not exist
+	pause
+	exit
+)
+exit

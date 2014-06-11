@@ -1,0 +1,3 @@
+map InclusionArgments get 0 className
+
+file load core\lib\ClassBuilder\classBuilder.bat

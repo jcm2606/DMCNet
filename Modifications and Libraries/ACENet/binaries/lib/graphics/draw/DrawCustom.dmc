@@ -1,0 +1,9 @@
+map InclusionArguments get 0 ShapeValue
+map InclusionArguments get 1 XCoord
+map InclusionArguments get 2 YCoord
+map InclusionArguments get 3 XCoord2
+map InclusionArguments get 4 YCoord2
+
+push Shape CUSTOM
+
+system.comIn call acenet\lib\graphics\draw\DrawScript.bat 

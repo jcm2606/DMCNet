@@ -1,0 +1,20 @@
+@echo off
+
+set file=%1
+
+if not exist dev\compiled (
+	echo Error: Compiled environment directory not generated. New directory generated
+	mkdir dev\compiled
+	pause
+	exit
+)
+
+if exist dev\src\%file%.meta.txt (
+	copy sdev\rc\%file%.meta.txt dev\compiled
+	
+	if exist dev\compiled\%file%.dmcclass.dmcmeta (
+		del dev\compiled\%file%.dmcclass.dmcmeta
+	)
+	
+	ren dev\compiled\%file%.meta.txt %file%.dmcclass.dmcmeta
+)

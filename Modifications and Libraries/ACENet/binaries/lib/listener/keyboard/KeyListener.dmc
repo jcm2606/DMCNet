@@ -1,0 +1,9 @@
+map InclusionArguments get 0 Function
+
+if Function eq listen function.invoke KListen
+
+function.wrap KListen
+
+system.comIn call acenet\lib\listener\keyboard\KeyListenerScript.bat
+
+function.end

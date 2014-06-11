@@ -1,0 +1,55 @@
+include MouseListener %PATH_ACENET_Lib%\listener\mouse\MouseListener
+
+function.wrap class.build
+math set Value 0
+function.end
+
+print Value
+
+system.comIn echo.
+system.comIn echo  [-1]  [+1]  [0]
+system.comIn echo  [-2]  [+2]
+system.comIn echo.
+system.comIn echo  [Exit]
+
+@ MouseListener listen
+
+push SubOneValid true
+if MouseX notInRange 2 5 push SubOneValid false
+if MouseY neq 3 push SubOneValid false
+
+push AddOneValid true
+if MouseX notInRange 8 11 push AddOneValid false
+if MouseY neq 3 push AddOneValid false
+
+push SubTwoValid true
+if MouseX notInRange 2 5 push SubTwoValid false
+if MouseY neq 4 push SubTwoValid false
+
+push AddTwoValid true
+if MouseX notInRange 8 11 push AddTwoValid false
+if MouseY neq 4 push AddTwoValid false
+
+push NullifyValid true
+if MouseX notInRange 14 16 push NullifyValid false
+if MouseY neq 3 push NullifyValid false
+
+push ExitValid true
+if MouseX notInRange 2 7 push ExitValid false
+if MouseY neq 6 push ExitValid false
+
+if AddOneValid eq true math increment Value 1
+if SubOneValid eq true math decrement Value 1
+if AddTwoValid eq true math increment Value 2
+if SubTwoValid eq true math decrement Value 2
+if NullifyValid eq true math set Value 0
+if ExitValid eq true system.comIn exit
+
+pull AddOneValid
+pull SubOneValid
+pull AddTwoValid
+pull SubTwoValid
+pull NullifyValid
+pull ExitValid
+
+cls

@@ -1,0 +1,17 @@
+<NotepadPlus>
+    <Session activeView="0">
+        <mainView activeIndex="0">
+            <File firstVisibleLine="0" xOffset="0" scrollWidth="1694" startPos="0" endPos="0" selMode="0" lang="Batch" encoding="-1" filename="C:\Users\Jake\Desktop\Batch Development\DMCNet\Main\launch_gui.bat" />
+            <File firstVisibleLine="0" xOffset="0" scrollWidth="1" startPos="0" endPos="0" selMode="0" lang="Batch" encoding="-1" filename="C:\Users\Jake\Desktop\Batch Development\DMCNet\Main\core\array.bat" />
+            <File firstVisibleLine="0" xOffset="0" scrollWidth="1" startPos="0" endPos="0" selMode="0" lang="Batch" encoding="-1" filename="C:\Users\Jake\Desktop\Batch Development\DMCNet\Main\core\core.bat" />
+            <File firstVisibleLine="0" xOffset="0" scrollWidth="1" startPos="0" endPos="0" selMode="0" lang="Batch" encoding="-1" filename="C:\Users\Jake\Desktop\Batch Development\DMCNet\Main\core\dev.bat" />
+            <File firstVisibleLine="0" xOffset="0" scrollWidth="1" startPos="0" endPos="0" selMode="0" lang="Batch" encoding="-1" filename="C:\Users\Jake\Desktop\Batch Development\DMCNet\Main\core\lib.bat" />
+            <File firstVisibleLine="0" xOffset="0" scrollWidth="1" startPos="0" endPos="0" selMode="0" lang="Batch" encoding="-1" filename="C:\Users\Jake\Desktop\Batch Development\DMCNet\Main\core\patch.bat" />
+            <File firstVisibleLine="0" xOffset="0" scrollWidth="1064" startPos="61" endPos="61" selMode="0" lang="Batch" encoding="-1" filename="C:\Users\Jake\Desktop\Batch Development\DMCNet\Main\core\property.bat" />
+            <File firstVisibleLine="0" xOffset="0" scrollWidth="1" startPos="0" endPos="0" selMode="0" lang="Normal Text" encoding="-1" filename="C:\Users\Jake\Desktop\Batch Development\DMCNet\Challenges.txt" />
+            <File firstVisibleLine="0" xOffset="0" scrollWidth="1" startPos="0" endPos="0" selMode="0" lang="Normal Text" encoding="-1" filename="C:\Users\Jake\Desktop\Batch Development\DMCNet\README.txt" />
+            <File firstVisibleLine="0" xOffset="0" scrollWidth="1694" startPos="506" endPos="506" selMode="0" lang="Normal Text" encoding="-1" filename="C:\Users\Jake\Desktop\Batch Development\DMCNet\Todo.txt" />
+        </mainView>
+        <subView activeIndex="0" />
+    </Session>
+</NotepadPlus>

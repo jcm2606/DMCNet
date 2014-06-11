@@ -1,0 +1,29 @@
+include KeyListener acenet\lib\listener\keyboard\KeyListener
+
+map InclusionArguments get 0 KYUp
+map InclusionArguments get 1 KYDwn
+map InclusionArguments get 2 KYLft
+map InclusionArguments get 3 KYRght
+
+if KYUp declared _ system.register.getValueOf KYUp Temp
+if KYUp declared _ push.overwrite KYUp !Temp!
+if Temp declared _ pull Temp
+
+if KYDwn declared _ system.register.getValueOf KYDwn Temp
+if KYDwn declared _ push.overwrite KYDwn !Temp!
+if Temp declared _ pull Temp
+
+if KYLft declared _ system.register.getValueOf KYLft Temp
+if KYLft declared _ push.overwrite KYLft !Temp!
+if Temp declared _ pull Temp
+
+if KYRght declared _ system.register.getValueOf KYRght Temp
+if KYRght declared _ push.overwrite KYRght !Temp!
+if Temp declared _ pull Temp
+
+@ KeyListener listen
+
+if KeyPressed eq KYUp math decrement LocY 1
+if KeyPressed eq KYDwn math increment LocY 1
+if KeyPressed eq KYRght math increment LocX 1
+if KeyPressed eq KYLft math decrement LocX 1

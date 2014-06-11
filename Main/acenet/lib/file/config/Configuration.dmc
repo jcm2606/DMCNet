@@ -1,0 +1,22 @@
+include MRFHandler %PATH_ACENET_Lib%\file\mrf\MRFHandler
+
+map InclusionArguments get 0 CFunction
+map InclusionArguments get 1 CFileName
+map InclusionArguments get 2 CEntry
+map InclusionArguments get 3 CArg1
+map InclusionArguments get 4 CArg2
+
+if CFunction eq create function.invoke ConfigCreate
+if CFunction eq get function.invoke ConfigGet
+
+function.wrap ConfigCreate
+    system.comIn call %PATH_ACENET_Lib%\file\config\ConfigScript.bat CREATE
+function.end
+
+
+
+function.wrap ConfigGet
+    @ MRFHandler get CFileName CEntry CArg2
+    
+    if EntryFound ndeclared _ @ MRFHandler add CFileName CEntry CArg1
+function.end

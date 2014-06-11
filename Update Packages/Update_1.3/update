@@ -1,0 +1,16 @@
+extract:core
+extract:crash
+extract:dev
+extract:lib
+extract:property
+new:folder:data
+new:folder:data\template
+new:folder:data\template\dev
+locate:data\template\dev\decompile.txt
+move:decompile.txt:data\template\dev
+locate:data\template\dev\package.txt
+move:package.txt:data\template\dev
+locate:data\template\dev\packageProject.txt
+move:packageProject.txt:data\template\dev
+locate:data\template\dev\recompile.txt
+move:recompile.txt:data\template\dev

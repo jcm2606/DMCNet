@@ -1,0 +1,14 @@
+- Make a counter that counts up to 5 using a function and at least 1 loop (done)
+
+- Make a system that converts Map data to a String that is in a sentence structure, and print that string to the console (done)
+	- Modify the code to instead write the string to a file (done)
+	- Make the entire system work using Inclusion's and do the above challenges with the inclusion (done)
+	
+- Create a multi-session system that relays data between two sessions using tickets (done)
+	- Use this system to send a String from one session to the other and print that string to the console (done)
+	- Modify this system to send data from a Map from one session to the other, and write the contents of the Map to the console, each value on it's own line (done)
+	- Use this system to send a Map from one session to the other, construct the data in this Map into a string and print that string to the console
+
+- Create a file searcher using "forEach" loops that searches for the data on a given line of a given file (done)
+
+- Using the class from the above challenge, modify the class used in the challenge above to suit the role of an Inclusion, and modify the class to instead set the data on the given line to a variable (done)

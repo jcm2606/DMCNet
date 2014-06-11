@@ -1,0 +1,24 @@
+@echo off
+
+set file=%1
+
+if not exist dev\src (
+	echo Error: Source environment directory not generated. New directory generated
+	mkdir dev\src
+	pause
+	exit
+)
+
+if not exist dev\compiled\%file%.dmcclass (
+	echo Error: File does not exist
+	pause
+	exit
+) else (
+	copy dev\compiled\%file%.dmcclass dev\src
+	
+	if exist dev\src\%file%.class.txt (
+		del dev\src\%file%.class.txt
+	)
+	
+	ren dev\src\%file%.dmcclass %file%.class.txt
+)

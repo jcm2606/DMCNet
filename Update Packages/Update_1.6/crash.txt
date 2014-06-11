@@ -1,0 +1,10 @@
+@echo off
+set "message=%1"
+set message=%message:"=%
+
+echo DMCNet has crashed!
+echo.
+echo %message%
+echo.
+pause
+exit

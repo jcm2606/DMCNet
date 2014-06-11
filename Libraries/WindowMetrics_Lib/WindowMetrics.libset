@@ -1,0 +1,9 @@
+new>folder>theme
+extract>lib_core>bat
+extract>WindowMetrics>dmclib
+extract>theme_default>txt
+rename>theme_default.txt>DEFAULT.wmtheme
+move>DEFAULT.wmtheme>theme
+extract>theme_classic>txt
+rename>theme_classic.txt>CLASSIC.wmtheme
+move>CLASSIC.wmtheme>theme

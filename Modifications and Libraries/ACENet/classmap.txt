@@ -1,0 +1,7 @@
+NEW CLASS THIS
+
+NEW OBJ.TEXT DisplayText Hello world
+
+NEW WINDOW THIS
+
+THIS DISPLAY DisplayText

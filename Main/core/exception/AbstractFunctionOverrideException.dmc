@@ -1,0 +1,11 @@
+class {
+exception trigger Abstract function not overridden
+
+push Text The abstract function '
+push.fromRegister Text FunctionName
+push Text ' was not overridden.
+
+print Text
+
+pull Text
+}

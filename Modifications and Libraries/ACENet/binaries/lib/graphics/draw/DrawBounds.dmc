@@ -1,0 +1,5 @@
+map InclusionArguments get 0 DRWBX
+map InclusionArguments get 1 DRWBY
+map InclusionArguments get 2 DRWBData
+
+system.comIn call acenet\lib\graphics\draw\DrawBoundsScript.bat

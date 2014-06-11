@@ -1,0 +1,24 @@
+map InclusionArguments get 0 XCoord
+map InclusionArguments get 1 YCoord
+map InclusionArguments get 2 XCoord2
+map InclusionArguments get 3 YCoord2
+
+if XCoord declared _ system.register.getValueOf XCoord Temp
+if XCoord declared _ push.overwrite XCoord !Temp!
+if Temp declared _ pull Temp
+
+if YCoord declared _ system.register.getValueOf YCoord Temp
+if YCoord declared _ push.overwrite YCoord !Temp!
+if Temp declared _ pull Temp
+
+if XCoord2 declared _ system.register.getValueOf XCoord2 Temp
+if XCoord2 declared _ push.overwrite XCoord2 !Temp!
+if Temp declared _ pull Temp
+
+if YCoord2 declared _ system.register.getValueOf YCoord2 Temp
+if YCoord2 declared _ push.overwrite YCoord2 !Temp!
+if Temp declared _ pull Temp
+
+push Shape BOX
+
+system.comIn call acenet\lib\graphics\draw\DrawScript.bat 

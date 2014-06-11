@@ -1,0 +1,3 @@
+map InclusionArguments get 0 Function
+
+if Function eq listen system.comIn call acenet\lib\listener\mouse\MouseListenerScript.bat
