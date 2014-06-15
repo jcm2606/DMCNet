@@ -10,6 +10,8 @@ class {
     # Invoke the function 'testFunction' within the class 'this' (which internally maps to this class' name, which is ExampleClassModifiers).
     function.invoke this.testFunction
     
+    end
+    
     # This function has got it's own access modifier, this is known as a Local Access Modifier, and this modifier only affects this function, no others.
     # So this access modifier essentially marks this function as 'PUBLIC', however the other function 'internalFunction' is still private.
     $Access PUBLIC

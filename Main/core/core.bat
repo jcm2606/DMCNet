@@ -600,6 +600,14 @@ for /f "%~1 tokens=1* delims=%~2" %%a in ("%~3") do (
 		set isCreatingFunction=false
 	)
 	
+	if /i "%%a"=="class" (
+		if /i "%%b"=="{" (
+			set !class!.classDefined=true
+			
+			set completed=true
+		)
+	)
+	
 	if not !isCreatingFunction!==true (
 		if defined !class!.classDefined (
 			if /i %%a==cls (
@@ -870,7 +878,7 @@ for /f "%~1 tokens=1* delims=%~2" %%a in ("%~3") do (
 					)
 				)
 			)
-		) else (
+		) else (			
 			if /i %%a==inherit (
 				set completed=true
 			)
@@ -880,31 +888,22 @@ for /f "%~1 tokens=1* delims=%~2" %%a in ("%~3") do (
 			if /i %%a==build (
 				set completed=true
 			)
-			
-			
-			
-			set sys.fchar=%%a
-			set sys.val=!sys.fchar:~1!
-			set sys.fchar=!sys.fchar:~0,1!
-			
-			if "!sys.fchar!"=="$" (
-				if /i "!sys.val!"=="Access" (
-					set completed=true
-				)
+		)
+		
+		set sys.fchar=%%a
+		set sys.val=!sys.fchar:~1!
+		set sys.fchar=!sys.fchar:~0,1!
+		
+		if "!sys.fchar!"=="$" (
+			if /i "!sys.val!"=="Access" (
+				set completed=true
 			)
-			
-			set "sys.fchar="
-			set "sys.val="
 		)
+		
+		set "sys.fchar="
+		set "sys.val="
+		
 		if /i %%a==end call :end "%%b"
-	)
-	
-	if /i "%%a"=="class" (
-		if /i "%%b"=="{" (
-			set !class!.classDefined=true
-			
-			set completed=true
-		)
 	)
 	
 	REM This is just a fix for a weird ass bug I found
