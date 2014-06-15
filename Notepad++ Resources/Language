@@ -1,7 +1,7 @@
 <NotepadPlus>
     <UserLang name="DMCNet_NP++Lang" ext="dmc" udlVersion="2.1">
         <Settings>
-            <Global caseIgnored="yes" allowFoldOfComments="yes" foldCompact="no" forcePureLC="0" decimalSeparator="0" />
+            <Global caseIgnored="yes" allowFoldOfComments="yes" foldCompact="yes" forcePureLC="0" decimalSeparator="0" />
             <Prefix Keywords1="no" Keywords2="no" Keywords3="no" Keywords4="no" Keywords5="no" Keywords6="no" Keywords7="no" Keywords8="no" />
         </Settings>
         <KeywordLists>
@@ -13,7 +13,7 @@
             <Keywords name="Numbers, suffix1"></Keywords>
             <Keywords name="Numbers, suffix2"></Keywords>
             <Keywords name="Numbers, range"></Keywords>
-            <Keywords name="Operators1">eq neq gtr lss geq leq</Keywords>
+            <Keywords name="Operators1">eq neq gtr lss geq leq declared ndeclared inrange notinrange</Keywords>
             <Keywords name="Operators2"></Keywords>
             <Keywords name="Folders in code1, open"></Keywords>
             <Keywords name="Folders in code1, middle"></Keywords>
@@ -24,10 +24,10 @@
             <Keywords name="Folders in comment, open"></Keywords>
             <Keywords name="Folders in comment, middle"></Keywords>
             <Keywords name="Folders in comment, close"></Keywords>
-            <Keywords name="Keywords1">push&#x000D;&#x000A;push.fromregister&#x000D;&#x000A;push.fromprompt&#x000D;&#x000A;pull&#x000D;&#x000A;loop&#x000D;&#x000A;jump&#x000D;&#x000A;math&#x000D;&#x000A;print&#x000D;&#x000A;if&#x000D;&#x000A;file&#x000D;&#x000A;class&#x000D;&#x000A;reload&#x000D;&#x000A;pushlocal&#x000D;&#x000A;pulllocal&#x000D;&#x000A;map&#x000D;&#x000A;ticket&#x000D;&#x000A;foreach&#x000D;&#x000A;foreach.file&#x000D;&#x000A;foreach.split&#x000D;&#x000A;foreach.splitstring&#x000D;&#x000A;while</Keywords>
+            <Keywords name="Keywords1">def&#x000D;&#x000A;def.fromregister&#x000D;&#x000A;def.fromprompt&#x000D;&#x000A;pull&#x000D;&#x000A;loop&#x000D;&#x000A;jump&#x000D;&#x000A;math&#x000D;&#x000A;print&#x000D;&#x000A;waitPrompt&#x000D;&#x000A;if&#x000D;&#x000A;file&#x000D;&#x000A;reload&#x000D;&#x000A;pushlocal&#x000D;&#x000A;pulllocal&#x000D;&#x000A;map&#x000D;&#x000A;ticket&#x000D;&#x000A;foreach&#x000D;&#x000A;foreach.file&#x000D;&#x000A;foreach.split&#x000D;&#x000A;foreach.splitstring&#x000D;&#x000A;while&#x000D;&#x000A;cls&#x000D;&#x000A;wait&#x000D;&#x000A;get&#x000D;&#x000A;exception</Keywords>
             <Keywords name="Keywords2">end</Keywords>
-            <Keywords name="Keywords3">class.args.get&#x000D;&#x000A;system.register.list.clear&#x000D;&#x000A;system.register.list.print&#x000D;&#x000A;system.register.getvalueof&#x000D;&#x000A;system.comin&#x000D;&#x000A;system.object.create</Keywords>
-            <Keywords name="Keywords4">include&#x000D;&#x000A;@&#x000D;&#x000A;@-&#x000D;&#x000A;@+&#x000D;&#x000A;function.wrap&#x000D;&#x000A;function.end&#x000D;&#x000A;function.invoke</Keywords>
+            <Keywords name="Keywords3">class.args.get&#x000D;&#x000A;system.register.list.clear&#x000D;&#x000A;system.register.list.print&#x000D;&#x000A;system.register.getvalueof&#x000D;&#x000A;system.comin&#x000D;&#x000A;system.object.create&#x000D;&#x000A;system.session.send.interComms&#x000D;&#x000A;system.session.id.set&#x000D;&#x000A;system.session.id.get</Keywords>
+            <Keywords name="Keywords4">include&#x000D;&#x000A;@&#x000D;&#x000A;@-&#x000D;&#x000A;@+&#x000D;&#x000A;function.wrap&#x000D;&#x000A;function.end&#x000D;&#x000A;function.invoke&#x000D;&#x000A;function.override&#x000D;&#x000A;function.abstract&#x000D;&#x000A;inherit&#x000D;&#x000A;build&#x000D;&#x000A;class</Keywords>
             <Keywords name="Keywords5"></Keywords>
             <Keywords name="Keywords6"></Keywords>
             <Keywords name="Keywords7"></Keywords>

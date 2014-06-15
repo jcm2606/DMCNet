@@ -13,12 +13,11 @@ REM Arguments: (
 REM name As "Array Name",
 REM value As "New value"
 REM )
-set array.name=%1
-set array.value=%2
+set array.name=%~1
+set array.value=%~2
 set "array.value=%array.value:"=%"
 if defined %array.name%[0] (
 	set /a array.index=%array.name%.length
-	set /a array.index+=1
 ) else (
 	set array.index=0
 )

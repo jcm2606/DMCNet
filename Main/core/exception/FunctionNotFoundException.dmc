@@ -1,0 +1,11 @@
+class {
+exception trigger Function not found.
+
+def Text = The function '
+def.fromRegister Text errorFunction
+def Text = ' could not be found.
+
+print Text
+
+pull Text
+}

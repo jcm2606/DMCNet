@@ -1,7 +1,13 @@
 class {
-    function.wrap main {
-        push test Hello World
+    function.invoke this.init
+    
+    end
+    
+    function.wrap init {
+        def test = Hello World
+        
         print test
-        end
-    } function.end
+        
+        pull test
+    }
 }

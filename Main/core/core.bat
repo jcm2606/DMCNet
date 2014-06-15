@@ -84,7 +84,7 @@ set userName=%username%
 
 call :coreConfigMapLoad
 
-for /r "%E_CorePath%\core\exception" %%A in (*.dmc) do (
+for /r "core\exception" %%A in (*.dmc) do (
 	call :inclusion "define", "%%~nA", "core\exception\%%~nA"
 	call :exception "register", "%%~nA"
 )
@@ -180,10 +180,6 @@ if %E_Debug%==true (
 
 :class.process
 
-if defined Function_%class%.main[0] (
-	call :function.invoke "%class%.main"
-)
-
 call :process "usebackq eol=#", " ", "%E_WorkingDirectory%\%class%.dmc"
 
 goto class.process
@@ -194,6 +190,9 @@ set /p "input=| "
 if not x%E_Flags:-debug=%==x%E_Flags% (
 	set E_Debug=true
 )
+
+set class=line
+set line.classDefined=true
 
 :readInput 
 if %E_Debug%==true (
@@ -251,7 +250,7 @@ for /r "%E_WorkingDirectory%" %%A in (*.hook.dmc) do (
 				
 				call :buildClass "usebackq eol=#", " ", "%%A", "%%~nA"
 				
-				call :function.invoke "%%~nA.hook"
+				call :process "usebackq eol=#", " ", "%%A"
 			)
 		) else (
 			if %E_Debug%==true (
@@ -260,7 +259,7 @@ for /r "%E_WorkingDirectory%" %%A in (*.hook.dmc) do (
 		
 			call :buildClass "usebackq eol=#", " ", "%%A", "!hookPath!\%%~nA"
 				
-			call :function.invoke "%%~nA.hook"
+			call :process "usebackq eol=#", " ", "%%A"
 		)
 	)
 	
@@ -354,12 +353,14 @@ if %E_Debug%==true (
 for /f "%~1 tokens=1* delims=%~2" %%a in ("%~3") do (
 	if "%%a"=="class" (
 		if "%%b"=="{" (
+			if %E_Debug%==true (
+				echo [%TIME%] [DMCNet] Discovered class-space open clause in class '%className%'
+			)
+		
 			set classBlockDefined=true
+			
+			set Class_%className%.declared=true
 		)
-	)
-	
-	if /i "%%a"=="}" (
-		set "classBlockDefined="
 	)
 	
 	if defined classBlockDefined (
@@ -367,27 +368,30 @@ for /f "%~1 tokens=1* delims=%~2" %%a in ("%~3") do (
 			for /f "tokens=1,2 delims= " %%c in ("%%b") do (
 				if "%%d"=="{" (
 					if %E_Debug%==true (
-						echo [%TIME%] [DMCNet] Found function '%%b' in class '%className%', wrapping
+						echo [%TIME%] [DMCNet] Discovered function '%%c' in class '%className%', wrapping
 					)
 					
 					call :function.wrap "%className%.%%c", "%~4"
 					
-					if %%b==%className%.build (
+					if %%c==%className%.build (
 						if %E_Debug%==true (
-							echo [%TIME%] [DMCNet] Found build function within class '%className%', invoking
+							echo [%TIME%] [DMCNet] Discovered build function within class '%className%', invoking
 						)
 					
+						set %className%.classDefined=true
+						
 						call :function.invoke "%className%.%%c"
+						
+						set "%className%.classDefined="
 					)
 					
-					REM :  This variable is just used to keep track of when a function is being created
-					REM :  This variable determines which lines can and cannot run when declaring a function
+					set functionBlockDefined=true
 				)
 			)
 		)
 		if /i %%a==function.override (
 			if %E_Debug%==true (
-				echo [%TIME%] [DMCNet] Found function override for function '%%b' in class '%className%', overriding
+				echo [%TIME%] [DMCNet] Discovered function override for function '%%b' in class '%className%', overriding
 			)
 		
 			call :function.override "%%b", "%~4"
@@ -404,12 +408,46 @@ for /f "%~1 tokens=1* delims=%~2" %%a in ("%~3") do (
 			)
 		)
 	) else (
+		set fchar=%%a
+		set val=!fchar:~1!
+		set fchar=!fchar:~0,1!
+		
+		if "!fchar!"=="$" (
+			if %E_Debug%==true (
+				echo [%TIME%] [DMCNet] Discovered object modifier of type '!val!' in class '%className%'
+			)
+		
+			if /i "!val!"=="Access" (
+				set Class_%className%.globalAccess=%%b
+			)
+		)
+		
+		set "fchar="
+		set "val="
+	
 		if /i %%a==include (
 			for /f "tokens=1,2* delims= " %%c in ("%%b") do (
 				call :inclusion "define", "%%c", "%%d"
 			)
 		)
+		
+		if /i %%a==build (
+			call :buildClass "usebackq eol=#", " ", "%E_WorkingDirectory%\%%b.dmc", "%%b"
+		)
 	)
+	
+	if /i "%%a"=="}" (
+		if defined functionBlockDefined (
+			set "functionBlockDefined="
+		) else (
+			if %E_Debug%==true (
+				echo [%TIME%] [DMCNet] Discovered class-space close clause in class '%className%'
+			)
+		
+			set "classBlockDefined="
+		)
+	)
+	
 	
 	set "completed="
 )
@@ -421,11 +459,15 @@ for /f "%~1 tokens=1* delims=%~2" %%a in ("%~3") do (
 		)
 	)
 	
-	if /i "%%a"=="}" (
-		set "classBlockDefined="
-	)
-	
-	if not defined classBlockDefined (
+	if defined classBlockDefined (
+		if /i %%a==function.wrap (
+			for /f "tokens=1,2 delims= " %%c in ("%%b") do (
+				if "%%d"=="{" (
+					set functionBlockDefined=true
+				)
+			)
+		)
+	) else (
 		if /i %%a==inherit (
 			if %E_Debug%==true (
 				echo [%TIME%] [DMCNet] Class '%~3' inherits superclass '%%b', building superclass '%%b'
@@ -436,9 +478,27 @@ for /f "%~1 tokens=1* delims=%~2" %%a in ("%~3") do (
 			call :inherit "%%b"
 		)
 	)
+	
+	if /i "%%a"=="}" (
+		if defined functionBlockDefined (
+			set "functionBlockDefined="
+		) else (
+			set "classBlockDefined="
+		)
+	)
+)
+
+if not defined Class_%className%.declared (
+	set errorClass=%~3
+
+	call :exception "throw", "ClassNotFoundException"
 )
 
 set "classBlockDefined="
+
+if %E_Debug%==true (
+	echo [%TIME%] [DMCNet] Built class file '%className%'
+)
 
 goto:EOF
 
@@ -496,8 +556,6 @@ REM Processes code
 
 set /a line=1
 
-set isCreatingFunction=false
-
 for /f "%~1 tokens=1* delims=%~2" %%a in ("%~3") do (
 	if "%class%"=="%~3" (
 		if %E_Debug%==true (
@@ -518,8 +576,32 @@ for /f "%~1 tokens=1* delims=%~2" %%a in ("%~3") do (
 			del core\Session_!E_ID!.tckt
 		)
 	)
+
+	if /i %%a==function.wrap (
+		set completed=true
+		
+		REM :  This variable is just used to keep track of when a function is being created
+		REM :  This variable determines which lines can and cannot run when declaring a function
+		
+		set isCreatingFunction=true
+	)
+	if /i %%a==function.override (
+		set completed=true
+		
+		REM :  This variable is just used to keep track of when a function is being created
+		REM :  This variable determines which lines can and cannot run when declaring a function
+		
+		set isCreatingFunction=true
+	)
+	if /i %%a==function.end (
+		REM :  Used to set the 'completed' variable to true to avoid false errors being thrown
+		REM :  Used to set the 'isCreatingFunction' variable to false to stop line skipping when a function is being declared
+		set completed=true
+		set isCreatingFunction=false
+	)
+	
 	if not !isCreatingFunction!==true (
-		if defined %~n3.classDefined (
+		if defined !class!.classDefined (
 			if /i %%a==cls (
 				call :clearScreen
 			)
@@ -536,28 +618,30 @@ for /f "%~1 tokens=1* delims=%~2" %%a in ("%~3") do (
 					call :setTitle "%%b"
 				)
 			)
-			if /i %%a==push (
-				for /f "tokens=1* delims= " %%c in ("%%b") do (
-					set varData=!%%c!
+			if /i %%a==def (
+				for /f "tokens=1,2* delims= " %%c in ("%%b") do (
+					if "%%d"=="=" (
+						set varData=!%%c!
 					
-					call :push "normal", "%%c", "%%d"
+						call :push "normal", "%%c", "%%e"
+					)
 				)
 			)
-			if /i %%a==push.fromPrompt (
+			if /i %%a==def.fromPrompt (
 				for /f "tokens=1* delims= " %%c in ("%%b") do (
 					set varData=!%%c!
 			
 					call :push "fromInput", "%%c", "%%d"
 				)
 			)
-			if /i %%a==push.fromRegister (
+			if /i %%a==def.fromRegister (
 				for /f "tokens=1* delims= " %%c in ("%%b") do (
 					set varData=!%%c!
 			
 					call :push "fromRegister", "%%c", "%%d"
 				)
 			)
-			if /i %%a==push.overwrite (
+			if /i %%a==def.overwrite (
 				for /f "tokens=1* delims= " %%c in ("%%b") do (
 					set varData=!%%c!
 			
@@ -758,7 +842,6 @@ for /f "%~1 tokens=1* delims=%~2" %%a in ("%~3") do (
 					
 					if /i %%B==comin (
 						if not "!%%b!"=="" (
-							echo !%%b!
 							call :cmd "!%%b!"
 						) else (
 							call :cmd "%%b"
@@ -787,41 +870,38 @@ for /f "%~1 tokens=1* delims=%~2" %%a in ("%~3") do (
 					)
 				)
 			)
+		) else (
+			if /i %%a==inherit (
+				set completed=true
+			)
+			if /i %%a==include (
+				set completed=true
+			)
+			if /i %%a==build (
+				set completed=true
+			)
+			
+			
+			
+			set sys.fchar=%%a
+			set sys.val=!sys.fchar:~1!
+			set sys.fchar=!sys.fchar:~0,1!
+			
+			if "!sys.fchar!"=="$" (
+				if /i "!sys.val!"=="Access" (
+					set completed=true
+				)
+			)
+			
+			set "sys.fchar="
+			set "sys.val="
 		)
 		if /i %%a==end call :end "%%b"
-	)
-	if /i %%a==inherit (
-		set completed=true
-	)
-	if /i %%a==include (
-		set completed=true
-	)
-	if /i %%a==function.wrap (
-		set completed=true
-		
-		REM :  This variable is just used to keep track of when a function is being created
-		REM :  This variable determines which lines can and cannot run when declaring a function
-		
-		set isCreatingFunction=true
-	)
-	if /i %%a==function.override (
-		set completed=true
-		
-		REM :  This variable is just used to keep track of when a function is being created
-		REM :  This variable determines which lines can and cannot run when declaring a function
-		
-		set isCreatingFunction=true
-	)
-	if /i %%a==function.end (
-		REM :  Used to set the 'completed' variable to true to avoid false errors being thrown
-		REM :  Used to set the 'isCreatingFunction' variable to false to stop line skipping when a function is being declared
-		set completed=true
-		set isCreatingFunction=false
 	)
 	
 	if /i "%%a"=="class" (
 		if /i "%%b"=="{" (
-			set %~n3.classDefined=true
+			set !class!.classDefined=true
 			
 			set completed=true
 		)
@@ -831,19 +911,15 @@ for /f "%~1 tokens=1* delims=%~2" %%a in ("%~3") do (
 	if /i "%%a"=="{" set completed=true
 	
 	if /i "%%a"=="}" (
-		for /f "tokens=1 delims= " %%c in ("%%b") do (
-			if %%c==function.end (
-				set completed=true
-				
-				set isCreatingFunction=false
-			)
-		)
-	)
+		if !isCreatingFunction!==true (
+			set completed=true
+			
+			set isCreatingFunction=false
+		) else (
+			set "%~4.classDefined="
 	
-	if /i "%%a%%b"=="}" (
-		set "%~n3.classDefined="
-		
-		set completed=true
+			set completed=true
+		)
 	)
 	
 	if not !isCreatingFunction!==true (
@@ -860,7 +936,7 @@ for /f "%~1 tokens=1* delims=%~2" %%a in ("%~3") do (
 		)
 	)
 	
-	set /a line+=1
+	set /a line=line+1
 	set "completed="
 )
 
@@ -1722,7 +1798,7 @@ if %func%==define (
 		set Inclusion_%commandName%=%commandScript%.dmc
 		
 		if exist %commandScript%.dmc (
-			call :buildClass "usebackq tokens=1* eol=#", " ", "%E_WorkingDirectory%\%commandScript%.dmc", "%commandScript%"
+			call :buildClass "usebackq tokens=1* eol=#", " ", "%commandScript%.dmc", "%commandScript%"
 		
 			if %E_Debug%==true (
 				echo [%TIME%] [DMCNet] Inclusion class '%commandScript%' declared
@@ -1854,7 +1930,7 @@ set FunctionCreateBoolean=false
 
 for /f "usebackq tokens=* delims= " %%A in ("%E_WorkingDirectory%\%functionClass%.dmc") do (
 	if !FunctionCreateBoolean!==true (
-		if "%%B"=="} function.end !functionName!" (
+		if "%%A"=="}" (
 			set FunctionCreateBoolean=false
 			
 			goto function.wrap_EXIT_LOOP
@@ -1864,17 +1940,108 @@ for /f "usebackq tokens=* delims= " %%A in ("%E_WorkingDirectory%\%functionClass
 	if !FunctionCreateBoolean!==true (
 		call core\array.bat add Function_%functionName% "%%A"
 	)
+	
+	for /f "tokens=1 delims=." %%C in ("%functionName%") do (
+		if defined Class_%%C.globalAccess (
+			set Function_%functionName%.access=!Class_%%C.globalAccess!
+		)
+	)
 
 	for /f "tokens=1,2,3 eol=#" %%B in ("%%A") do (
-		if %%B==function.wrap (
-			if "%%D"=="{" (
-				set FunctionCreateBoolean=true
+		for /f "tokens=1* delims=." %%E in ("%functionName%") do (
+			if "%%B"=="function.wrap" (
+				if "%%C"=="%%F" (
+					if "%%D"=="{" (
+						set Function_%functionName%.declared=true
+					
+						set FunctionCreateBoolean=true
+					)
+				)
 			)
 		)
 	)
 ) 
 
 :function.wrap_EXIT_LOOP
+
+set FunctionCreateBoolean=false
+
+for /f "usebackq tokens=* delims= " %%A in ("%E_WorkingDirectory%\%functionClass%.dmc") do (
+	if "%%A"=="class {" (
+		set classBlockDeclared=true
+	)
+	
+	if defined classBlockDeclared (
+		for /f "tokens=1,2 delims= " %%L in ("%%A") do (
+			set fchar=%%L
+			set val=!fchar:~1!
+			set fchar=!fchar:~0,1!
+			
+			if "!fchar!"=="$" (
+				if "!val!"=="Access" (
+					set modifierDeclared=true
+					set modifierType=!val!
+					set modifierValue=%%M
+				)
+			)
+			
+			set "fchar="
+			set "val="
+		)
+	)
+	
+	if defined modifierDeclared (
+		for /f "tokens=1,2,3 eol=#" %%B in ("%%A") do (
+			for /f "tokens=1* delims=." %%E in ("%functionName%") do (
+				if %%B==function.wrap (
+					if %%C==%%F (
+						if "%%D"=="{" (
+							if /i "!modifierType!"=="Access" (
+								for /f "tokens=1 delims=." %%C in ("%functionName%") do (
+									if defined Class_%%C.globalAccess (
+										set Function_%functionName%.access=!modifierValue!
+									)
+								)
+							)
+							
+							set "modifierDeclared="
+							set "modifierType="
+							set "modifierValue="
+							
+							goto function.wrap_EXIT_MODIFIER_LOOP
+						)
+					)
+				)
+			)
+		)
+	)
+	
+	if !FunctionCreateBoolean!==false (
+		if "%%A"=="}" (
+			set "classBlockDeclared="
+		)
+	)
+	
+	for /f "tokens=1,2,3 eol=#" %%B in ("%%A") do (
+		for /f "tokens=1* delims=." %%E in ("%functionName%") do (
+			if %%B==function.wrap (
+				if %%C==%%F (
+					if "%%D"=="{" (
+						set FunctionCreateBoolean=true
+					)
+				)
+			)
+		)
+	)
+	
+	if !FunctionCreateBoolean!==true (
+		if "%%A"=="}" (
+			set FunctionCreateBoolean=false
+		)
+	)
+)
+
+:function.wrap_EXIT_MODIFIER_LOOP
 
 set completed=true
 
@@ -1929,11 +2096,69 @@ goto:EOF
 :function.invoke 
 set functionName=%~1
 
-for /f "tokens=1,2,3 delims=[=]" %%A in ('set Function_%functionName%[') do (
-	call :process "tokens=1* eol=#", " ", "%%C"
+for /f "tokens=1* delims=." %%h in ("%functionName%") do (
+	if %%h==this (
+		set functionName=%class%.%%i
+	)
 )
 
+if defined Function_!functionName!.access (
+	call :getFunctionAccess "!functionName!"
+
+	if /i "!faccess!"=="private" (
+		for /f "tokens=1 delims=." %%h in ("!functionName!") do (
+			if not %%h==%class% (
+				set errorFunction=!functionName!
+
+				call :exception "throw", "FunctionNotFoundException"
+			)
+		)
+	)
+	
+	set "faccess="
+)
+
+if not defined Function_!functionName!.declared (
+	set errorFunction=!functionName!
+
+	call :exception "throw", "FunctionNotFoundException"
+)
+
+call :getFunctionLength "!functionName!"
+
+for /l %%n in (0, 1, !flength!) do (
+	call :getFunctionEntryAt "!functionName!", "%%n"
+
+	call :process "tokens=1* eol=#", " ", "!fentry!"
+	
+	set "fentry="
+)
+
+set "flength="
+
 set completed=true
+
+goto:EOF
+
+:getFunctionAccess
+set functionName=%~1
+
+set faccess=!Function_%functionName%.access!
+
+goto:EOF
+
+:getFunctionLength
+set functionName=%~1
+
+set flength=!Function_%functionName%.length!
+
+goto:EOF
+
+:getFunctionEntryAt
+set functionName=%~1
+set index=%~2
+
+set fentry=!Function_%functionName%[%index%]!
 
 goto:EOF
 
@@ -2099,7 +2324,7 @@ if %Func%==throw (
 		set EXCEPTION_TRIGGER=UnexpectedErrorException
 	)
 
-	for /f "usebackq tokens=1,2* eol=# delims= " %%A in ("%E_WorkingDirectory%\!Exception_%Arg1%!") do (
+	for /f "usebackq tokens=1,2* eol=# delims= " %%A in ("!Exception_%Arg1%!") do (
 		if %%A==exception (
 			if %%B==trigger (
 				set EXCEPTION_TRIGGER=%%C
@@ -2117,7 +2342,7 @@ if %Func%==throw (
 	echo [%TIME%] [DMCNet] START CUSTOM EXCEPTION OUPUT
 	echo.
 	
-	call :process "usebackq tokens=1* eol=#", " ", "%E_WorkingDirectory%\!Exception_%Arg1%!"
+	call :process "usebackq tokens=1* eol=#", " ", "!Exception_%Arg1%!"
 	
 	echo.
 	echo [%TIME%] [DMCNet] END CUSTOM EXCEPTION OUPUT

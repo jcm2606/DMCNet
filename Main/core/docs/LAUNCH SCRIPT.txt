@@ -1,0 +1,20 @@
+These are the valid commands that can go in any *.script files for launching a DMCNet project:
+
+- PATH :
+    Allows you to modify the launch path that DMCNet uses to find certain resources, including the Working Directory and core configuration map.
+
+- FUNCTION :
+    Allows you to set the launch function the launcher passes to the core script.
+    
+    - 'class'
+        Executes a class file.
+    
+- ARGS :
+    Allows you to set the launch arguments the launcher passes to the core script.
+    
+    - FOR THE 'class' FUNCTION :
+        - <classname / relative path> :
+            Defines the class name (and path OPTIONALLY) for the class you want to execute.
+    
+- FLAGS :
+    Allows you to define system flags that you may want to use.

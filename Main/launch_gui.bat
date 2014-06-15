@@ -1,6 +1,6 @@
 @echo off
 
-REM  DMCNet Official Launcher
+REM  DMCNet Official Runtime Launcher
 
 set version=1.2
 
@@ -8,7 +8,7 @@ REM  This entire source code is open and is able to be referenced
 
 set FileListFile=%Temp%\dmcnet_file_list.txt
 
-title DMCNet Official Launcher
+title DMCNet Official Runtime Launcher
 setlocal EnableDelayedExpansion
 
 set "E_CoreObjMapPath=%CD%\dmcnet.txt"
@@ -30,7 +30,7 @@ if exist %FileListFile% (
 	del %FileListFile%
 )
 
-echo DMCNet Official Launcher
+echo DMCNet Official Runtime Launcher
 echo Version %version%
 echo.
 

@@ -1,0 +1,9 @@
+# ACENet_Variables.
+# Hook class for ACENet variable declaration.
+
+# subscribe START
+# path acenet\dmcnet\lib
+
+class {
+    if PATH_ACENET_Lib ndeclared _ def PATH_ACENET_Lib = acenet\lib
+}

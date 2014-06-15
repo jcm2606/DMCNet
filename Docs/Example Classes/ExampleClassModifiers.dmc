@@ -1,0 +1,37 @@
+# This class is purely for showing how modifiers work and how they can be utilised.
+# Do note that these are not 100% implemented the way I'd like them to be, currently
+# only access modifiers are implemented.
+
+# This is known as a Global Access Modifier.
+# Internally, all functions belonging to this class are now globally assigned the access modifier type 'PRIVATE'.
+$Access PRIVATE
+class {
+    
+    # Invoke the function 'testFunction' within the class 'this' (which internally maps to this class' name, which is ExampleClassModifiers).
+    function.invoke this.testFunction
+    
+    # This function has got it's own access modifier, this is known as a Local Access Modifier, and this modifier only affects this function, no others.
+    # So this access modifier essentially marks this function as 'PUBLIC', however the other function 'internalFunction' is still private.
+    $Access PUBLIC
+    function.wrap testFunction {
+    
+        # Define a new object in the system with the alias 'Test' and assign the value 'Hello World' to the object
+        def Test = Hello World
+        
+        # Invoke the function 'internalFunction' within the class 'this' (which internally maps to this class' name, which is ExampleClassModifiers).
+        function.invoke this.internalFunction
+        
+        # Pull the object 'Test' from the system, which therefore deletes the value assigned to the object
+        pull Test
+        
+    }
+    
+    # Since this function has got no local access modifier, it takes on the access rules from the class it belongs to, which would be 'PRIVATE'
+    function.wrap internalFunction {
+        
+        # Print the value of the object 'Test' to the console
+        print Test
+        
+    }
+    
+}
