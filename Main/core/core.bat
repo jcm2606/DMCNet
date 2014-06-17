@@ -52,7 +52,8 @@ set E_Version=%E_Version_Major%.%E_Version_Minor%
 set "E_CoreObjMapPath=%loc:"=%\dmcnet.txt"
 set "E_CorePath=%loc:"=%"
 set TicketFile=ticket
-set TITLE=DMCNet %E_Version%
+set TITLE_DEFAULT=DMCNet %E_Version%
+set TITLE=!TITLE_DEFAULT!
 
 
 
@@ -86,7 +87,7 @@ call :coreConfigMapLoad
 
 for /r "core\exception" %%A in (*.dmc) do (
 	call :inclusion "define", "%%~nA", "core\exception\%%~nA"
-	call :exception "register", "%%~nA"
+	call :exception "object", "%%~nA"
 )
 
 title %TITLE%
@@ -185,7 +186,7 @@ call :process "usebackq eol=#", " ", "%E_WorkingDirectory%\%class%.dmc"
 goto class.process
 
 :prompt 
-set /p "input=| "
+set /p "input=$ "
 
 if not x%E_Flags:-debug=%==x%E_Flags% (
 	set E_Debug=true
@@ -346,6 +347,9 @@ REM :  Called to pre-build the class, declaring functions and calling any intern
 :buildClass
 set className=%~n4
 
+set titlePrev=!TITLE!
+title !TITLE_DEFAULT! - Building class file '!className!'
+
 if %E_Debug%==true (
 	echo [%TIME%] [DMCNet] Building class file '%className%'
 )
@@ -496,6 +500,8 @@ if not defined Class_%className%.declared (
 
 set "classBlockDefined="
 
+title !titlePrev!
+
 if %E_Debug%==true (
 	echo [%TIME%] [DMCNet] Built class file '%className%'
 )
@@ -614,7 +620,35 @@ for /f "%~1 tokens=1* delims=%~2" %%a in ("%~3") do (
 				call :clearScreen
 			)
 			if /i %%a==print (
-				call :out "!%%b!"
+				for /f "tokens=1,2 delims=." %%t in ("%%b") do (
+					if "%%u"=="" (
+						call :out "!%%t!"
+					)
+				
+					if %%u==value (
+						call :out "!%%t!"
+					)
+					
+					if %%u==name (
+						call :out "%%t"
+					)
+					
+					if %%u==obj (
+						echo Object[NAME="%%t", VALUE="!%%t!"]
+						
+						set completed=true
+					)
+					
+					if %%u==length (
+						call core\stringutil.bat getLength "!%%t!" "objlength"
+						
+						echo !objlength!
+						
+						set "objlength="
+						
+						set completed=true
+					)
+				)
 			)
 			if /i %%a==print.debug (
 				call :outDebug "!%%b!"
@@ -635,6 +669,13 @@ for /f "%~1 tokens=1* delims=%~2" %%a in ("%~3") do (
 					)
 				)
 			)
+			if /i %%a==def.append (
+				for /f "tokens=1* delims= " %%c in ("%%b") do (
+					set varData=!%%c!
+				
+					call :push "append", "%%c", "%%d"
+				)
+			)
 			if /i %%a==def.fromPrompt (
 				for /f "tokens=1* delims= " %%c in ("%%b") do (
 					set varData=!%%c!
@@ -642,11 +683,11 @@ for /f "%~1 tokens=1* delims=%~2" %%a in ("%~3") do (
 					call :push "fromInput", "%%c", "%%d"
 				)
 			)
-			if /i %%a==def.fromRegister (
+			if /i %%a==def.fromObject (
 				for /f "tokens=1* delims= " %%c in ("%%b") do (
 					set varData=!%%c!
 			
-					call :push "fromRegister", "%%c", "%%d"
+					call :push "fromObject", "%%c", "%%d"
 				)
 			)
 			if /i %%a==def.overwrite (
@@ -810,20 +851,20 @@ for /f "%~1 tokens=1* delims=%~2" %%a in ("%~3") do (
 						exit
 					)
 				
-					if /i %%B==register (
+					if /i %%B==object (
 						if /i %%C==list (
 							if /i %%D==print (
-								call :system.register.list.print
+								call :system.object.list.print
 							)
 							
 							if /i %%D==clear (
-								call :system.register.list.clear
+								call :system.object.list.clear
 							)
 						)
 						
 						if /i %%C==getValueOf (
 							for /f "tokens=1* delims= " %%c in ("%%b") do (
-								call :system.register.getvalue "%%c", "%%d"
+								call :system.object.getvalue "%%c", "%%d"
 							)
 						)
 					)
@@ -962,9 +1003,9 @@ if /i %function%==create (
 
 goto:EOF
 
-:system.register.list.print 
+:system.object.list.print 
 
-call core\array.bat tostring REGISTER_LIST string
+call core\array.bat tostring OBJECT_LIST string
 
 set "string=%string:[=%"
 set "string=%string:]=%"
@@ -978,9 +1019,9 @@ set completed=true
 
 goto:EOF
 
-:system.register.list.clear 
+:system.object.list.clear 
 
-call core\array.bat tostring REGISTER_LIST string
+call core\array.bat tostring OBJECT_LIST string
 
 set "string=%string:[=%"
 set "string=%string:]=%"
@@ -1042,12 +1083,12 @@ set completed=true
 
 goto:EOF
 
-:system.register.getvalue 
-set registerName=%~1
-set registerName=!%registerName%!
+:system.object.getvalue 
+set objectName=%~1
+set objectName=!%objectName%!
 set varName=%~2
 
-set "%varName%=!%registerName%!"
+set "%varName%=!%objectName%!"
 
 set completed=true
 
@@ -1079,7 +1120,7 @@ set varName=%~1
 set varData=%~2
 
 if %E_Debug%==true (
-	echo [%TIME%] [DMCNet] Waiting for register '%varName%' to have a value of '%varData%'
+	echo [%TIME%] [DMCNet] Waiting for object '%varName%' to have a value of '%varData%'
 )
 
 :waitFor.INTERNAL_LABEL
@@ -1103,7 +1144,7 @@ if not !%varName%!==%varData% (
 )
 
 if %E_Debug%==true (
-	echo [%TIME%] [DMCNet] Register '%varName%' has a value of '%varData%', continuing code callback
+	echo [%TIME%] [DMCNet] Object '%varName%' has a value of '%varData%', continuing code callback
 )
 
 set completed=true
@@ -1153,78 +1194,122 @@ goto:EOF
 
 :push 
 set func=%~1
-set register=%~2
+set object=%~2
 set data=%~3
 
 if %func%==normal (
 	if "%data%"=="/separate" (
-		if defined %register% (
-			set "%register%=!varData! "
+		set "%object%= "
+		
+		call core\array.bat add OBJECT_LIST %object%
+
+		if defined LOG_OBJECT_PUSHES (
+			call core\array.bat add OBJECT_POOL %object%
+		)
+		
+		if %E_Debug%==true (
+			echo [%TIME%] [DMCNet] Pushed data ' ' to object '%object%'
+		)
+		
+		set Event.Object.Push.Data=Event.Object.Push[OBJECT='%object%'; DATA=' ']End
+		
+		if %E_ShowEventData%==true (
+			echo !Event.Object.Push.Data!
+		)
+		
+		set completed=true
+	) else (
+		set "%object%=%data%"
+		
+		call core\array.bat add OBJECT_LIST %object%
+		
+		if defined LOG_OBJECT_PUSHES (
+			call core\array.bat add OBJECT_POOL %object%
+		)
+		
+		if %E_Debug%==true (
+			echo [%TIME%] [DMCNet] Pushed data '%data%' to object '%object%'
+		)
+		
+		set Event.Object.Push.Data=Event.Object.Push[OBJECT='%object%'; DATA='%data%']End
+		
+		if %E_ShowEventData%==true (
+			echo !Event.Object.Push.Data!
+		)
+		
+		set completed=true
+	)
+)
+
+if %func%==append (
+	if "%data%"=="/separate" (
+		if defined %object% (
+			set "%object%=!varData! "
 			
 			if %E_Debug%==true (
-				echo [%TIME%] [DMCNet] Pushed data ' ' to register '%register%'
+				echo [%TIME%] [DMCNet] Appended data ' ' to object '%object%'
 			)
 			
-			set Event.Register.Push.Data=Event.Register.Push[REGISTER='%register%'; DATA=' ']End
+			set Event.Object.Append.Data=Event.Object.Append[OBJECT='%object%'; DATA=' ']End
 			
 			if %E_ShowEventData%==true (
-				echo !Event.Register.Push.Data!
+				echo !Event.Object.Append.Data!
 			)
 			
 			set completed=true
 		) else (
-			set "%register%= "
+			set "%object%= "
 			
-			call core\array.bat add REGISTER_LIST %register%
+			call core\array.bat add OBJECT_LIST %object%
 
-			if defined LOG_REGISTER_PUSHES (
-				call core\array.bat add REGISTER_POOL %register%
+			if defined LOG_OBJECT_PUSHES (
+				call core\array.bat add OBJECT_POOL %object%
 			)
 			
 			if %E_Debug%==true (
-				echo [%TIME%] [DMCNet] Pushed data ' ' to register '%register%'
+				echo [%TIME%] [DMCNet] Appended data ' ' to object '%object%'
 			)
 			
-			set Event.Register.Push.Data=Event.Register.Push[REGISTER='%register%'; DATA=' ']End
+			set Event.Object.Append.Data=Event.Object.Append[OBJECT='%object%'; DATA=' ']End
 			
 			if %E_ShowEventData%==true (
-				echo !Event.Register.Push.Data!
+				echo !Event.Object.Append.Data!
 			)
 			
 			set completed=true
 		)
 	) else (
-		if defined %register% (
-			set "%register%=!varData!%data%"
+		if defined %object% (
+			set "%object%=!varData!%data%"
 			
 			if %E_Debug%==true (
-				echo [%TIME%] [DMCNet] Pushed data '%data%' to register '%register%'
+				echo [%TIME%] [DMCNet] Appended data '%data%' to object '%object%'
 			)
 			
-			set Event.Register.Push.Data=Event.Register.Push[REGISTER='%register%'; DATA='%data%']End
+			set Event.Object.Append.Data=Event.Object.Append[OBJECT='%object%'; DATA='%data%']End
 			
 			if %E_ShowEventData%==true (
-				echo !Event.Register.Push.Data!
+				echo !Event.Object.Append.Data!
 			)
 			
 			set completed=true
 		) else (
-			set "%register%=%data%"
+			set "%object%=%data%"
 			
-			call core\array.bat add REGISTER_LIST %register%
+			call core\array.bat add OBJECT_LIST %object%
 			
-			if defined LOG_REGISTER_PUSHES (
-				call core\array.bat add REGISTER_POOL %register%
+			if defined LOG_OBJECT_PUSHES (
+				call core\array.bat add OBJECT_POOL %object%
 			)
 			
 			if %E_Debug%==true (
-				echo [%TIME%] [DMCNet] Pushed data '%data%' to register '%register%'
+				echo [%TIME%] [DMCNet] Appended data '%data%' to object '%object%'
 			)
 			
-			set Event.Register.Push.Data=Event.Register.Push[REGISTER='%register%'; DATA='%data%']End
+			set Event.Object.Append.Data=Event.Object.Append[OBJECT='%object%'; DATA='%data%']End
 			
 			if %E_ShowEventData%==true (
-				echo !Event.Register.Push.Data!
+				echo !Event.Object.Append.Data!
 			)
 			
 			set completed=true
@@ -1233,66 +1318,66 @@ if %func%==normal (
 )
 
 if %func%==overwrite (
-	set Event.Register.Overwrite.Data=Event.Register.Overwrite[REGISTER='%register%'; PREDATA='!%register%!'; DATA='%data%']End
+	set Event.Object.Overwrite.Data=Event.Object.Overwrite[OBJECT='%object%'; PREDATA='!%object%!'; DATA='%data%']End
 
 	if %E_ShowEventData%==true (
-		echo !Event.Register.Overwrite.Data!
+		echo !Event.Object.Overwrite.Data!
 	)
 	
-	set "%register%=%data%"
+	set "%object%=%data%"
 	
-	call core\array.bat add REGISTER_LIST %register%
+	call core\array.bat add OBJECT_LIST %object%
 	
-	if defined LOG_REGISTER_PUSHES (
-		call core\array.bat add REGISTER_POOL %register%
+	if defined LOG_OBJECT_PUSHES (
+		call core\array.bat add OBJECT_POOL %object%
 	)
 	
 	if %E_Debug%==true (
-		echo [%TIME%] [DMCNet] Overwritten data within register '%register%' with data '%data%'
+		echo [%TIME%] [DMCNet] Overwritten data within object '%object%' with data '%data%'
 	)
 	
 	set completed=true
 )
 
 if %func%==fromInput (
-	set /p %register%=%data%
+	set /p %object%=%data%
 	
-	call core\array.bat add REGISTER_LIST %register%
+	call core\array.bat add OBJECT_LIST %object%
 			
 	if %E_Debug%==true (
-		echo [%TIME%] [DMCNet] Pushed data '!%register%!' from user input to register '%register%'
+		echo [%TIME%] [DMCNet] Pushed data '!%object%!' from user input to object '%object%'
 	)
 	
-	set Event.Register.PushFromPrompt.Data=Event.Register.PushFromPrompt[REGISTER='%register%'; DATA='!%register%!']End
+	set Event.Object.PushFromPrompt.Data=Event.Object.PushFromPrompt[OBJECT='%object%'; DATA='!%object%!']End
 	
 	if %E_ShowEventData%==true (
-		echo !Event.Register.PushFromPrompt.Data!
+		echo !Event.Object.PushFromPrompt.Data!
 	)
 	
 	set completed=true
 )
 
-if %func%==fromRegister (
-	set %register%=!varData!!%data%!
+if %func%==fromObject (
+	set %object%=!varData!!%data%!
 	
 	if %E_Debug%==true (
-		echo [%TIME%] [DMCNet] Pushed data '!%data%!' from register '%data%' to register '%register%'
+		echo [%TIME%] [DMCNet] Pushed data '!%data%!' from object '%data%' to object '%object%'
 	)
 	
-	set Event.Register.PushFromRegister.Data=Event.Register.PushFromRegister[REGISTER='%register%'; REGISTEREXTERNAL='%data%[!%data%!]']End
+	set Event.Object.PushFromObject.Data=Event.Object.PushFromObject[OBJECT='%object%'; OBJECTEXTERNAL='%data%[!%data%!]']End
 	
 	if %E_ShowEventData%==true (
-		echo !Event.Register.PushFromRegister.Data!
+		echo !Event.Object.PushFromObject.Data!
 	)
 	
 	set completed=true
 )
 
 if %func%==toclipboard (
-	echo %register% | clip
+	echo %object% | clip
 	
 	if %E_Debug%==true (
-		echo [%TIME%] [DMCNet] Pushed data '!%register%!' from register '%register%' to clipboard
+		echo [%TIME%] [DMCNet] Pushed data '!%object%!' from object '%object%' to clipboard
 	)
 	
 	set completed=true
@@ -1302,54 +1387,54 @@ goto:EOF
 
 :math 
 set func=%~1
-set register=%~2
+set object=%~2
 set "data=%~3"
 
 if /i %func%==add (
-	set /a %register%+=%data%
+	set /a %object%+=%data%
 	
 	if %E_Debug%==true (
-		echo [%TIME%] [DMCNet] Incremented value in register '%register%' by '%data%'
+		echo [%TIME%] [DMCNet] Incremented value in object '%object%' by '%data%'
 	)
 	
 	set completed=true
 )
 
 if /i %func%==sub (
-	set /a %register%=!varData!-%data%
+	set /a %object%=!varData!-%data%
 	
 	if %E_Debug%==true (
-		echo [%TIME%] [DMCNet] Decremented value in register '%register%' by '%data%'
+		echo [%TIME%] [DMCNet] Decremented value in object '%object%' by '%data%'
 	)
 	
 	set completed=true
 )
 
 if /i %func%==multiply (
-	set /a %register%=!varData!*%data%
+	set /a %object%=!varData!*%data%
 	
 	if %E_Debug%==true (
-		echo [%TIME%] [DMCNet] Multiplied value in register '%register%' by '%data%'
+		echo [%TIME%] [DMCNet] Multiplied value in object '%object%' by '%data%'
 	)
 	
 	set completed=true
 )
 
 if /i %func%==divide (
-	set /a %register%=!varData!/%data%
+	set /a %object%=!varData!/%data%
 	
 	if %E_Debug%==true (
-		echo [%TIME%] [DMCNet] Divided value in register '%register%' by '%data%'
+		echo [%TIME%] [DMCNet] Divided value in object '%object%' by '%data%'
 	)
 	
 	set completed=true
 )
 
 if /i %func%==nullify (
-	set /a %register%=0
+	set /a %object%=0
 	
 	if %E_Debug%==true (
-		echo [%TIME%] [DMCNet] Nullified value in register '%register%'
+		echo [%TIME%] [DMCNet] Nullified value in object '%object%'
 	)
 	
 	set completed=true
@@ -1360,10 +1445,10 @@ if /i %func%==set (
 		set data=!data!
 	)
 
-	set /a %register%=%data%
+	set /a %object%=%data%
 	
 	if %E_Debug%==true (
-		echo [%TIME%] [DMCNet] Set data in register '%register%' to '%data%'
+		echo [%TIME%] [DMCNet] Set data in object '%object%' to '%data%'
 	)
 	
 	set completed=true
@@ -1372,12 +1457,12 @@ if /i %func%==set (
 goto:EOF
 
 :pull 
-set register=%~1
+set object=%~1
 
-set "%register%="
+set "%object%="
 
 if %E_Debug%==true (
-	echo [%TIME%] [DMCNet] Pulled data from register '%register%'
+	echo [%TIME%] [DMCNet] Pulled data from object '%object%'
 )
 
 set completed=true
@@ -1773,7 +1858,7 @@ if /i %func%==pullRaw (
 	set completed=true
 )
 
-if /i %func%==importRegisterMap (
+if /i %func%==importObjectMap (
 	if exist core\ticket\%TicketFile%.tckt (
 		for /f "tokens=1* eol=# delims==" %%A in (core\ticket\%TicketFile%.tckt) do (
 			set %%A=%%B
@@ -1858,7 +1943,7 @@ goto:EOF
 
 :pushLocal 
 
-set LOG_REGISTER_PUSHES=true
+set LOG_OBJECT_PUSHES=true
 
 set completed=true
 
@@ -1866,9 +1951,9 @@ goto:EOF
 
 :pullLocal 
 
-set "LOG_REGISTER_PUSHES="
+set "LOG_OBJECT_PUSHES="
 
-call core\array.bat tostring REGISTER_POOL string
+call core\array.bat tostring OBJECT_POOL string
 
 set "string=%string:[=%"
 set "string=%string:]=%"
@@ -2308,7 +2393,7 @@ set Func=%~1
 set Arg1=%~2
 set Arg2=%~3
 
-if %Func%==register (
+if %Func%==object (
 	set Exception_%Arg1%=!Inclusion_%Arg1%!
 	
 	set completed=true
