@@ -1,14 +1,14 @@
 @echo off
 
-REM  DMCNet Official Launcher
+REM  DMCNet Official Runtime Launcher
 
-set version=1.2
+set version=1.3
 
 REM  This entire source code is open and is able to be referenced
 
 set FileListFile=%Temp%\dmcnet_file_list.txt
 
-title DMCNet Official Launcher
+title DMCNet Official Runtime Launcher
 setlocal EnableDelayedExpansion
 
 set "E_CoreObjMapPath=%CD%\dmcnet.txt"
@@ -30,7 +30,7 @@ if exist %FileListFile% (
 	del %FileListFile%
 )
 
-echo DMCNet Official Launcher
+echo DMCNet Official Runtime Launcher
 echo Version %version%
 echo.
 
@@ -82,13 +82,25 @@ set /a EXEntryLine+=2
 
 REM  Checks if the core object map exists before showing the prompt
 if not exist "%E_CoreObjMapPath%" (
-	echo # START CORE ENVIRONMENT VALUES>>"%E_CoreObjMapPath%"
-	echo E_Debug:false>>"%E_CoreObjMapPath%"
-	echo E_WorkingDirectory:CD>>"%E_CoreObjMapPath%"
-	echo # END CORE ENVIRONMENT VALUES>>"%E_CoreObjMapPath%"
-	echo # Place custom values you wish to be loaded into>>"%E_CoreObjMapPath%"
-	echo # DMCNet's environment after here>>"%E_CoreObjMapPath%"
+	(
+	echo # START CORE ENVIRONMENT VALUES
+	echo.
+	echo E_Debug:false
+	echo E_WorkingDirectory:CD
+	echo.
+	echo # Colour values
+	echo # Valid colours: Yellow, Red, Blue, Green, Magenta, Cyan
+	echo # Capital start brightens the colour
+	echo E_DebugColour.Normal:Yellow
+	echo E_DebugColour.Error:Red
+	echo.
+	echo # END CORE ENVIRONMENT VALUES
+	echo.
+	echo # Place custom values you wish to be loaded into
+	echo # DMCNet's environment after here
+	)>>"%E_CoreObjMapPath%"
 	
+	echo.
 	echo Warning:
 	echo The DMCNet Core Object Map could not be found. A new one has been
 	echo generated.
@@ -97,6 +109,7 @@ if not exist "%E_CoreObjMapPath%" (
 
 REM  Checks if the "core" directory exists before showing the prompt
 if not exist core (
+	echo.
 	echo Warning: 
 	echo DMCNet is not fully installed. Please download the latest update
 	echo package and build the DMCNet binaries to use DMCNet.
@@ -249,7 +262,11 @@ if %func%==script (
 			set flags=!flags!%%B
 		)
 		if %%A==LOAD (
-			start core\core.bat !func! !args! "!DMC_PATH!" "!%%flags%%!"
+			if "!DMC_PATH!"=="%CD%" (
+				start core\core.bat !func! !args! "!DMC_PATH!" "!%%flags%%!"
+			) else (
+				start core\core.bat !func! !args! "!DMC_PATH!" "!%%flags%%!"
+			)
 		)
 	)
 	
@@ -285,12 +302,9 @@ if %func%==update (
 			for /f "tokens=1,2,3 delims=." %%A in ("%%a") do (
 				if exist core\%%A.bat (
 					echo extract:%%A>>Update_%args2%\update
-				
-					timeout /t 2 /nobreak >nul
 			
 					copy core\%%A.bat Update_%args2%
 					
-					timeout /t 2 /nobreak >nul
 					ren Update_%args2%\%%A.bat %%A.txt
 				)
 			)
@@ -313,8 +327,6 @@ if %func%==update (
 				if exist core\data\template\dev\%%A.txt (
 					echo locate:data\template\dev\%%A.txt>>Update_%args2%\update
 					echo move:%%A.txt:data\template\dev>>Update_%args2%\update
-				
-					timeout /t 2 /nobreak >nul
 			
 					copy core\data\template\dev\%%A.txt Update_%args2%\data\template\dev
 				)
@@ -337,8 +349,6 @@ if %func%==update (
 		echo.
 		for /f "tokens=1,2,3,4 delims=:" %%a in (Update_%args2%\update) do (
 			if %%a==extract (
-				timeout /t 2 /nobreak >nul
-				
 				if exist core\%%b.bat (
 					del core\%%b.bat
 				)
@@ -349,8 +359,6 @@ if %func%==update (
 			)
 			
 			if %%a==locate (
-				timeout /t 1 /nobreak >nul
-				
 				if exist core\%%b (
 					del core\%%b
 				)
@@ -360,8 +368,6 @@ if %func%==update (
 			
 			if %%a==new (
 				if %%b==folder (
-					timeout /t 1 /nobreak >nul
-					
 					if not exist core\%%c (
 						mkdir core\%%c
 					)
@@ -369,19 +375,17 @@ if %func%==update (
 			)
 			
 			if %%a==move (
-				timeout /t 1 /nobreak >nul
 				move core\%%b core\%%c
 			)
 			
 			if %%a==rename (
-				timeout /t 1 /nobreak >nul
 				ren core\%%b %%c
 			)
 		)
 	)
 	
 	echo.
-	echo Update has been installed, returning to prompt.
+	echo Returning to prompt.
 	
 	timeout /t 4 /nobreak >nul
 	

@@ -1,0 +1,5 @@
+new Object.ClassSpace.Begin
+
+
+
+new Object.ClassSpace.End

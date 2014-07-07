@@ -1,10 +1,12 @@
-include MouseListener %PATH_ACENET_Lib%\listener\mouse\MouseListener
-
 class {
-    @ MouseListener listen
+    function.wrap main {
+        function.invoke this.test
+    }
     
-    print MouseX
-    print MouseY
-    
-    end
+    function.wrap test {
+        def test = Hello World
+        print test
+        pull test
+        end
+    }
 }

@@ -2,7 +2,7 @@
 
 REM  DMCNet Official Runtime Launcher
 
-set version=1.2
+set version=1.3
 
 REM  This entire source code is open and is able to be referenced
 
@@ -82,13 +82,25 @@ set /a EXEntryLine+=2
 
 REM  Checks if the core object map exists before showing the prompt
 if not exist "%E_CoreObjMapPath%" (
-	echo # START CORE ENVIRONMENT VALUES>>"%E_CoreObjMapPath%"
-	echo E_Debug:false>>"%E_CoreObjMapPath%"
-	echo E_WorkingDirectory:CD>>"%E_CoreObjMapPath%"
-	echo # END CORE ENVIRONMENT VALUES>>"%E_CoreObjMapPath%"
-	echo # Place custom values you wish to be loaded into>>"%E_CoreObjMapPath%"
-	echo # DMCNet's environment after here>>"%E_CoreObjMapPath%"
+	(
+	echo # START CORE ENVIRONMENT VALUES
+	echo.
+	echo E_Debug:false
+	echo E_WorkingDirectory:CD
+	echo.
+	echo # Colour values
+	echo # Valid colours: Yellow, Red, Blue, Green, Magenta, Cyan
+	echo # Capital start brightens the colour
+	echo E_DebugColour.Normal:Yellow
+	echo E_DebugColour.Error:Red
+	echo.
+	echo # END CORE ENVIRONMENT VALUES
+	echo.
+	echo # Place custom values you wish to be loaded into
+	echo # DMCNet's environment after here
+	)>>"%E_CoreObjMapPath%"
 	
+	echo.
 	echo Warning:
 	echo The DMCNet Core Object Map could not be found. A new one has been
 	echo generated.
@@ -97,6 +109,7 @@ if not exist "%E_CoreObjMapPath%" (
 
 REM  Checks if the "core" directory exists before showing the prompt
 if not exist core (
+	echo.
 	echo Warning: 
 	echo DMCNet is not fully installed. Please download the latest update
 	echo package and build the DMCNet binaries to use DMCNet.

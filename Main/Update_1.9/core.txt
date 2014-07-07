@@ -42,7 +42,7 @@ if not x%E_Flags:-debug=%==x%E_Flags% (
 )
 
 if %E_Debug%==true (
-	core\sfk.exe echo "!E_DebugColour_Normal![%TIME%] [DMCNet] Declaring environment variables"
+	core\sfk.exe echo "!E_DebugColour_Normal! [%TIME%] [DMCNet] Declaring environment variables"
 )
 
 
@@ -66,7 +66,7 @@ if not x%E_Flags:-showBranding=%==x%E_Flags% (
 )
 
 if %E_Debug%==true (
-	core\sfk.exe echo "!E_DebugColour_Normal![%TIME%] [DMCNet] Declaring pathing variables"
+	core\sfk.exe echo "!E_DebugColour_Normal! [%TIME%] [DMCNet] Declaring pathing variables"
 )
 
 
@@ -138,7 +138,7 @@ for %%A in (%E_Flags%) do (
 )
 
 if %E_Debug%==true (
-	core\sfk.exe echo "!E_DebugColour_Normal![%TIME%] [DMCNet] Setting class variables"
+	core\sfk.exe echo "!E_DebugColour_Normal! [%TIME%] [DMCNet] Setting class variables"
 )
 
 set "C_ClassLocation=%E_WorkingDirectory%\%class%.dmc"
@@ -178,18 +178,10 @@ for /F "tokens=1* delims=]" %%a in ('type "%E_WorkingDirectory%\%class%.dmc" ^| 
 )
 
 if %E_Debug%==true (
-	core\sfk.exe echo "!E_DebugColour_Normal![%TIME%] [DMCNet] Parsing class to processing"
+	core\sfk.exe echo "!E_DebugColour_Normal! [%TIME%] [DMCNet] Passing class to processing"
 )
 
 :class.process
-
-if !Function_%className%.main.declared!==true (
-	set %className%.classDefined=true
-						
-	call :function.invoke "%className%.main"
-
-	set "%className%.classDefined="
-)
 
 call :process "usebackq eol=#", " ", "%E_WorkingDirectory%\%class%.dmc"
 
@@ -207,7 +199,7 @@ set line.classDefined=true
 
 :readInput 
 if %E_Debug%==true (
-	core\sfk.exe echo "!E_DebugColour_Normal![%TIME%] [DMCNet] Parsing string '%input%' to processing"
+	core\sfk.exe echo "!E_DebugColour_Normal! [%TIME%] [DMCNet] Passing string '%input%' to processing"
 )
 
 call :process "eol=#", " ", "%input%"
@@ -256,7 +248,7 @@ for /r "%E_WorkingDirectory%" %%A in (*.hook.dmc) do (
 		if defined hookRunmode (
 			if /i %func%==!hookRunmode! (
 				if %E_Debug%==true (
-					core\sfk.exe echo "!E_DebugColour_Normal![%TIME%] [DMCNet] Hook loaded with name '%%~nA' as type '%hookType%' under run mode '!hookRunmode!'"
+					core\sfk.exe echo "!E_DebugColour_Normal! [%TIME%] [DMCNet] Hook loaded with name '%%~nA' as type '%hookType%' under run mode '!hookRunmode!'"
 				)
 				
 				call :buildClass "usebackq eol=#", " ", "%%A", "%%~nA"
@@ -265,7 +257,7 @@ for /r "%E_WorkingDirectory%" %%A in (*.hook.dmc) do (
 			)
 		) else (
 			if %E_Debug%==true (
-				core\sfk.exe echo "!E_DebugColour_Normal![%TIME%] [DMCNet] Hook loaded with name '%%~nA' as type '%hookType%'"
+				core\sfk.exe echo "!E_DebugColour_Normal! [%TIME%] [DMCNet] Hook loaded with name '%%~nA' as type '%hookType%'"
 			)
 		
 			call :buildClass "usebackq eol=#", " ", "%%A", "!hookPath!\%%~nA"
@@ -350,7 +342,7 @@ REM Loads the core configuraton map for DMCNet
 :coreConfigMapLoad 
 
 if %E_Debug%==true (
-	core\sfk.exe echo "!E_DebugColour_Normal![%TIME%] [DMCNet] Importing data from core configuration map
+	core\sfk.exe echo "!E_DebugColour_Normal! [%TIME%] [DMCNet] Importing data from core configuration map
 )
 
 if exist "%E_CoreObjMapPath%" (
@@ -402,14 +394,14 @@ set titlePrev=!TITLE!
 title !TITLE_DEFAULT! - Building class file '!className!'
 
 if %E_Debug%==true (
-	core\sfk.exe echo "!E_DebugColour_Normal![%TIME%] [DMCNet] Building class file '%className%'"
+	core\sfk.exe echo "!E_DebugColour_Normal! [%TIME%] [DMCNet] Building class file '%className%'"
 )
 
 for /f "%~1 tokens=1* delims=%~2" %%a in ("%~3") do (
 	if "%%a"=="class" (
 		if "%%b"=="{" (
 			if %E_Debug%==true (
-				core\sfk.exe echo "!E_DebugColour_Normal![%TIME%] [DMCNet] Discovered class-space open clause in class '%className%'"
+				core\sfk.exe echo "!E_DebugColour_Normal! [%TIME%] [DMCNet] Discovered class-space open clause in class '%className%'"
 			)
 		
 			set classBlockDefined=true
@@ -423,14 +415,14 @@ for /f "%~1 tokens=1* delims=%~2" %%a in ("%~3") do (
 			for /f "tokens=1,2 delims= " %%c in ("%%b") do (
 				if "%%d"=="{" (
 					if %E_Debug%==true (
-						core\sfk.exe echo "!E_DebugColour_Normal![%TIME%] [DMCNet] Discovered function '%%c' in class '%className%', wrapping"
+						core\sfk.exe echo "!E_DebugColour_Normal! [%TIME%] [DMCNet] Discovered function '%%c' in class '%className%', wrapping"
 					)
 					
 					call :function.wrap "%className%.%%c", "%~4"
 					
 					if %%c==%className%.build (
 						if %E_Debug%==true (
-							core\sfk.exe echo "!E_DebugColour_Normal![%TIME%] [DMCNet] Discovered build function within class '%className%', invoking"
+							core\sfk.exe echo "!E_DebugColour_Normal! [%TIME%] [DMCNet] Discovered build function within class '%className%', invoking"
 						)
 					
 						set %className%.classDefined=true
@@ -446,7 +438,7 @@ for /f "%~1 tokens=1* delims=%~2" %%a in ("%~3") do (
 		)
 		if /i %%a==function.override (
 			if %E_Debug%==true (
-				core\sfk.exe echo "!E_DebugColour_Normal![%TIME%] [DMCNet] Discovered function override for function '%%b' in class '%className%', overriding"
+				core\sfk.exe echo "!E_DebugColour_Normal! [%TIME%] [DMCNet] Discovered function override for function '%%b' in class '%className%', overriding"
 			)
 		
 			call :function.override "%%b", "%~4"
@@ -469,15 +461,11 @@ for /f "%~1 tokens=1* delims=%~2" %%a in ("%~3") do (
 		
 		if "!fchar!"=="$" (
 			if %E_Debug%==true (
-				core\sfk.exe echo "!E_DebugColour_Normal![%TIME%] [DMCNet] Discovered object modifier of type '!val!' in class '%className%'"
+				core\sfk.exe echo "!E_DebugColour_Normal! [%TIME%] [DMCNet] Discovered object modifier of type '!val!' in class '%className%'"
 			)
 		
 			if /i "!val!"=="Access" (
 				set Class_%className%.globalAccess=%%b
-			)
-			
-			if /i "!val!"=="Abstract" (
-				set Class_%className%.abstract=true
 			)
 		)
 		
@@ -500,7 +488,7 @@ for /f "%~1 tokens=1* delims=%~2" %%a in ("%~3") do (
 			set "functionBlockDefined="
 		) else (
 			if %E_Debug%==true (
-				core\sfk.exe echo "!E_DebugColour_Normal![%TIME%] [DMCNet] Discovered class-space close clause in class '%className%'"
+				core\sfk.exe echo "!E_DebugColour_Normal! [%TIME%] [DMCNet] Discovered class-space close clause in class '%className%'"
 			)
 		
 			set "classBlockDefined="
@@ -529,7 +517,7 @@ for /f "%~1 tokens=1* delims=%~2" %%a in ("%~3") do (
 	) else (
 		if /i %%a==inherit (
 			if %E_Debug%==true (
-				core\sfk.exe echo "!E_DebugColour_Normal![%TIME%] [DMCNet] Class '%~3' inherits superclass '%%b', building superclass '%%b'"
+				core\sfk.exe echo "!E_DebugColour_Normal! [%TIME%] [DMCNet] Class '%~3' inherits superclass '%%b', building superclass '%%b'"
 			)
 		
 			set "classBlockDefined="
@@ -558,7 +546,7 @@ set "classBlockDefined="
 title !titlePrev!
 
 if %E_Debug%==true (
-	core\sfk.exe echo "!E_DebugColour_Normal![%TIME%] [DMCNet] Built class file '%className%'"
+	core\sfk.exe echo "!E_DebugColour_Normal! [%TIME%] [DMCNet] Built class file '%className%'"
 )
 
 goto:EOF
@@ -620,14 +608,14 @@ set /a line=1
 for /f "%~1 tokens=1* delims=%~2" %%a in ("%~3") do (
 	if "%class%"=="%~3" (
 		if %E_Debug%==true (
-			core\sfk.exe echo "!E_DebugColour_Normal![%TIME%] [DMCNet] Processing string '%%a %%b'"
+			core\sfk.exe echo "!E_DebugColour_Normal! [%TIME%] [DMCNet] Processing string '%%a %%b'"
 		)
 	)
 
 	if not "!E_ID!"=="" (
 		if exist core\Session_!E_ID!.tckt (
 			if %E_Debug%==true (
-				core\sfk.exe echo "!E_DebugColour_Normal![%TIME%] [DMCNet] Received inter-session-communication message"
+				core\sfk.exe echo "!E_DebugColour_Normal! [%TIME%] [DMCNet] Received inter-session-communication message"
 			)
 		
 			for /f "tokens=1,2 delims==" %%A in (core\Session_!E_ID!.tckt) do (
@@ -994,10 +982,6 @@ for /f "%~1 tokens=1* delims=%~2" %%a in ("%~3") do (
 			if /i "!sys.val!"=="Access" (
 				set completed=true
 			)
-			
-			if /i "!sys.val!"=="Abstract" (
-				set completed=true
-			)
 		)
 		
 		set "sys.fchar="
@@ -1028,9 +1012,9 @@ for /f "%~1 tokens=1* delims=%~2" %%a in ("%~3") do (
 			) else (
 				set comm=%%a %%b
 			)
-			core\sfk.exe echo "!E_DebugColour_Error![%TIME%] [DMCNet] Error, command did not complete successfully.
-			core\sfk.exe echo "!E_DebugColour_Error![%TIME%] [DMCNet] Command:
-			core\sfk.exe echo "!E_DebugColour_Error![%TIME%] [DMCNet]          '!comm!' IN CLASS '{E_WorkPlace}\%class%.dmc' @ LINE !line!
+			core\sfk.exe echo "!E_DebugColour_Error! [%TIME%] [DMCNet] Error, command did not complete successfully.
+			core\sfk.exe echo "!E_DebugColour_Error! [%TIME%] [DMCNet] Command:
+			core\sfk.exe echo "!E_DebugColour_Error! [%TIME%] [DMCNet]          '!comm!' IN CLASS '{E_WorkPlace}\%class%.dmc' @ LINE !line!
 			echo.
 		)
 	)
@@ -1121,7 +1105,7 @@ set data=%~2
 echo %data%>>core\Session_%sessionID%.tckt
 
 if %E_Debug%==true (
-	core\sfk.exe echo "!E_DebugColour_Normal![%TIME%] [DMCNet] Sent inter-session-communication message '%data%' to session '%sessionID%'"
+	core\sfk.exe echo "!E_DebugColour_Normal! [%TIME%] [DMCNet] Sent inter-session-communication message '%data%' to session '%sessionID%'"
 )
 
 set completed=true
@@ -1179,7 +1163,7 @@ set varName=%~1
 set varData=%~2
 
 if %E_Debug%==true (
-	core\sfk.exe echo "!E_DebugColour_Normal![%TIME%] [DMCNet] Waiting for object '%varName%' to have a value of '%varData%'"
+	core\sfk.exe echo "!E_DebugColour_Normal! [%TIME%] [DMCNet] Waiting for object '%varName%' to have a value of '%varData%'"
 )
 
 :waitFor.INTERNAL_LABEL
@@ -1187,7 +1171,7 @@ if %E_Debug%==true (
 if not "!E_ID!"=="" (
 	if exist core\Session_!E_ID!.tckt (
 		if %E_Debug%==true (
-			core\sfk.exe echo "!E_DebugColour_Normal![%TIME%] [DMCNet] Received inter-session-communication message"
+			core\sfk.exe echo "!E_DebugColour_Normal! [%TIME%] [DMCNet] Received inter-session-communication message"
 		)
 	
 		for /f "tokens=1,2 delims==" %%A in (core\Session_!E_ID!.tckt) do (
@@ -1203,7 +1187,7 @@ if not !%varName%!==%varData% (
 )
 
 if %E_Debug%==true (
-	core\sfk.exe echo "!E_DebugColour_Normal![%TIME%] [DMCNet] Object '%varName%' has a value of '%varData%', continuing code callback"
+	core\sfk.exe echo "!E_DebugColour_Normal! [%TIME%] [DMCNet] Object '%varName%' has a value of '%varData%', continuing code callback"
 )
 
 set completed=true
@@ -1267,7 +1251,7 @@ if %func%==normal (
 		)
 		
 		if %E_Debug%==true (
-			core\sfk.exe echo "!E_DebugColour_Normal![%TIME%] [DMCNet] Pushed data ' ' to object '%object%'"
+			core\sfk.exe echo "!E_DebugColour_Normal! [%TIME%] [DMCNet] Pushed data ' ' to object '%object%'"
 		)
 		
 		set Event.Object.Push.Data=Event.Object.Push[OBJECT='%object%'; DATA=' ']End
@@ -1287,7 +1271,7 @@ if %func%==normal (
 		)
 		
 		if %E_Debug%==true (
-			core\sfk.exe echo "!E_DebugColour_Normal![%TIME%] [DMCNet] Pushed data '%data%' to object '%object%'"
+			core\sfk.exe echo "!E_DebugColour_Normal! [%TIME%] [DMCNet] Pushed data '%data%' to object '%object%'"
 		)
 		
 		set Event.Object.Push.Data=Event.Object.Push[OBJECT='%object%'; DATA='%data%']End
@@ -1306,7 +1290,7 @@ if %func%==append (
 			set "%object%=!varData! "
 			
 			if %E_Debug%==true (
-				core\sfk.exe echo "!E_DebugColour_Normal![%TIME%] [DMCNet] Appended data ' ' to object '%object%'"
+				core\sfk.exe echo "!E_DebugColour_Normal! [%TIME%] [DMCNet] Appended data ' ' to object '%object%'"
 			)
 			
 			set Event.Object.Append.Data=Event.Object.Append[OBJECT='%object%'; DATA=' ']End
@@ -1326,7 +1310,7 @@ if %func%==append (
 			)
 			
 			if %E_Debug%==true (
-				core\sfk.exe echo "!E_DebugColour_Normal![%TIME%] [DMCNet] Appended data ' ' to object '%object%'"
+				core\sfk.exe echo "!E_DebugColour_Normal! [%TIME%] [DMCNet] Appended data ' ' to object '%object%'"
 			)
 			
 			set Event.Object.Append.Data=Event.Object.Append[OBJECT='%object%'; DATA=' ']End
@@ -1342,7 +1326,7 @@ if %func%==append (
 			set "%object%=!varData!%data%"
 			
 			if %E_Debug%==true (
-				core\sfk.exe echo "!E_DebugColour_Normal![%TIME%] [DMCNet] Appended data '%data%' to object '%object%'"
+				core\sfk.exe echo "!E_DebugColour_Normal! [%TIME%] [DMCNet] Appended data '%data%' to object '%object%'"
 			)
 			
 			set Event.Object.Append.Data=Event.Object.Append[OBJECT='%object%'; DATA='%data%']End
@@ -1362,7 +1346,7 @@ if %func%==append (
 			)
 			
 			if %E_Debug%==true (
-				core\sfk.exe echo "!E_DebugColour_Normal![%TIME%] [DMCNet] Appended data '%data%' to object '%object%'"
+				core\sfk.exe echo "!E_DebugColour_Normal! [%TIME%] [DMCNet] Appended data '%data%' to object '%object%'"
 			)
 			
 			set Event.Object.Append.Data=Event.Object.Append[OBJECT='%object%'; DATA='%data%']End
@@ -1392,7 +1376,7 @@ if %func%==overwrite (
 	)
 	
 	if %E_Debug%==true (
-		core\sfk.exe echo "!E_DebugColour_Normal![%TIME%] [DMCNet] Overwritten data within object '%object%' with data '%data%'"
+		core\sfk.exe echo "!E_DebugColour_Normal! [%TIME%] [DMCNet] Overwritten data within object '%object%' with data '%data%'"
 	)
 	
 	set completed=true
@@ -1404,7 +1388,7 @@ if %func%==fromInput (
 	call core\array.bat add OBJECT_LIST %object%
 			
 	if %E_Debug%==true (
-		core\sfk.exe echo "!E_DebugColour_Normal![%TIME%] [DMCNet] Pushed data '!%object%!' from user input to object '%object%'"
+		core\sfk.exe echo "!E_DebugColour_Normal! [%TIME%] [DMCNet] Pushed data '!%object%!' from user input to object '%object%'"
 	)
 	
 	set Event.Object.PushFromPrompt.Data=Event.Object.PushFromPrompt[OBJECT='%object%'; DATA='!%object%!']End
@@ -1420,7 +1404,7 @@ if %func%==fromObject (
 	set %object%=!varData!!%data%!
 	
 	if %E_Debug%==true (
-		core\sfk.exe echo "!E_DebugColour_Normal![%TIME%] [DMCNet] Pushed data '!%data%!' from object '%data%' to object '%object%'"
+		core\sfk.exe echo "!E_DebugColour_Normal! [%TIME%] [DMCNet] Pushed data '!%data%!' from object '%data%' to object '%object%'"
 	)
 	
 	set Event.Object.PushFromObject.Data=Event.Object.PushFromObject[OBJECT='%object%'; OBJECTEXTERNAL='%data%[!%data%!]']End
@@ -1436,7 +1420,7 @@ if %func%==toclipboard (
 	echo %object% | clip
 	
 	if %E_Debug%==true (
-		core\sfk.exe echo "!E_DebugColour_Normal![%TIME%] [DMCNet] Pushed data '!%object%!' from object '%object%' to clipboard"
+		core\sfk.exe echo "!E_DebugColour_Normal! [%TIME%] [DMCNet] Pushed data '!%object%!' from object '%object%' to clipboard"
 	)
 	
 	set completed=true
@@ -1453,7 +1437,7 @@ if /i %func%==add (
 	set /a %object%+=%data%
 	
 	if %E_Debug%==true (
-		core\sfk.exe echo "!E_DebugColour_Normal![%TIME%] [DMCNet] Incremented value in object '%object%' by '%data%'"
+		core\sfk.exe echo "!E_DebugColour_Normal! [%TIME%] [DMCNet] Incremented value in object '%object%' by '%data%'"
 	)
 	
 	set completed=true
@@ -1463,7 +1447,7 @@ if /i %func%==sub (
 	set /a %object%=!varData!-%data%
 	
 	if %E_Debug%==true (
-		core\sfk.exe echo "!E_DebugColour_Normal![%TIME%] [DMCNet] Decremented value in object '%object%' by '%data%'"
+		core\sfk.exe echo "!E_DebugColour_Normal! [%TIME%] [DMCNet] Decremented value in object '%object%' by '%data%'"
 	)
 	
 	set completed=true
@@ -1473,7 +1457,7 @@ if /i %func%==multiply (
 	set /a %object%=!varData!*%data%
 	
 	if %E_Debug%==true (
-		core\sfk.exe echo "!E_DebugColour_Normal![%TIME%] [DMCNet] Multiplied value in object '%object%' by '%data%'"
+		core\sfk.exe echo "!E_DebugColour_Normal! [%TIME%] [DMCNet] Multiplied value in object '%object%' by '%data%'"
 	)
 	
 	set completed=true
@@ -1483,7 +1467,7 @@ if /i %func%==divide (
 	set /a %object%=!varData!/%data%
 	
 	if %E_Debug%==true (
-		core\sfk.exe echo "!E_DebugColour_Normal![%TIME%] [DMCNet] Divided value in object '%object%' by '%data%'"
+		core\sfk.exe echo "!E_DebugColour_Normal! [%TIME%] [DMCNet] Divided value in object '%object%' by '%data%'"
 	)
 	
 	set completed=true
@@ -1493,7 +1477,7 @@ if /i %func%==nullify (
 	set /a %object%=0
 	
 	if %E_Debug%==true (
-		core\sfk.exe echo "!E_DebugColour_Normal![%TIME%] [DMCNet] Nullified value in object '%object%'"
+		core\sfk.exe echo "!E_DebugColour_Normal! [%TIME%] [DMCNet] Nullified value in object '%object%'"
 	)
 	
 	set completed=true
@@ -1507,7 +1491,7 @@ if /i %func%==set (
 	set /a %object%=%data%
 	
 	if %E_Debug%==true (
-		core\sfk.exe echo "!E_DebugColour_Normal![%TIME%] [DMCNet] Set data in object '%object%' to '%data%'"
+		core\sfk.exe echo "!E_DebugColour_Normal! [%TIME%] [DMCNet] Set data in object '%object%' to '%data%'"
 	)
 	
 	set completed=true
@@ -1521,7 +1505,7 @@ set object=%~1
 set "%object%="
 
 if %E_Debug%==true (
-	core\sfk.exe echo "!E_DebugColour_Normal![%TIME%] [DMCNet] Pulled data from object '%object%'"
+	core\sfk.exe echo "!E_DebugColour_Normal! [%TIME%] [DMCNet] Pulled data from object '%object%'"
 )
 
 set completed=true
@@ -1542,7 +1526,7 @@ if %function%==line (
 
 	if not %Mode%==ignorePrompt (
 		echo.
-		core\sfk.exe echo "!E_DebugColour_Normal![%TIME%] [DMCNet] Class has ended
+		core\sfk.exe echo "!E_DebugColour_Normal! [%TIME%] [DMCNet] Class has ended
 	)
 	
 	goto prompt
@@ -1553,9 +1537,8 @@ if %function%==line (
 
 	if not %Mode%==ignorePrompt (
 		echo.
-		core\sfk.exe echo "!E_DebugColour_Normal![%TIME%] [DMCNet] Class has ended"
-		core\sfk.exe echo "!E_DebugColour_Normal!"[%TIME%] [DMCNet] Press any key to close the console window...
-		pause>nul
+		core\sfk.exe echo "!E_DebugColour_Normal! [%TIME%] [DMCNet] Class has ended
+		pause
 	)
 	
 	exit
@@ -1569,7 +1552,7 @@ set data=%~1
 %data%
 
 if %E_Debug%==true (
-	core\sfk.exe echo "!E_DebugColour_Normal![%TIME%] [DMCNet] Executed command '%data%' in Windows Command Prompt"
+	core\sfk.exe echo "!E_DebugColour_Normal! [%TIME%] [DMCNet] Executed command '%data%' in Windows Command Prompt"
 )
 
 set completed=true
@@ -1584,7 +1567,7 @@ set TimesLooped=0
 set TimesToLoop=%data1%
 
 if %E_Debug%==true (
-	core\sfk.exe echo "!E_DebugColour_Normal![%TIME%] [DMCNet] Looping of command '%data2%' %TimesToLoop% times commenced"
+	core\sfk.exe echo "!E_DebugColour_Normal! [%TIME%] [DMCNet] Looping of command '%data2%' %TimesToLoop% times commenced"
 )
 		
 :LOOP_INTERNAL_LABEL 
@@ -1598,7 +1581,7 @@ if not %TimesLooped%==%TimesToLoop% (
 )
 
 if %E_Debug%==true (
-	core\sfk.exe echo "!E_DebugColour_Normal![%TIME%] [DMCNet] Looping of command '%data2%' ended"
+	core\sfk.exe echo "!E_DebugColour_Normal! [%TIME%] [DMCNet] Looping of command '%data2%' ended"
 )
 
 set completed=true
@@ -1739,13 +1722,13 @@ if /i %func%==write (
 			echo !writeData!>>!fileData!
 		
 			if %E_Debug%==true (
-				core\sfk.exe echo "!E_DebugColour_Normal![%TIME%] [DMCNet] Written data '!writeData!' to file '!fileData!'"
+				core\sfk.exe echo "!E_DebugColour_Normal! [%TIME%] [DMCNet] Written data '!writeData!' to file '!fileData!'"
 			)
 		) else (
 			echo !writeData!>>%file%
 			
 			if %E_Debug%==true (
-				core\sfk.exe echo "!E_DebugColour_Normal![%TIME%] [DMCNet] Written data '!writeData!' to file '%file%'"
+				core\sfk.exe echo "!E_DebugColour_Normal! [%TIME%] [DMCNet] Written data '!writeData!' to file '%file%'"
 			)
 		)
 	) else (
@@ -1753,13 +1736,13 @@ if /i %func%==write (
 			echo %data%>>!fileData!
 			
 			if %E_Debug%==true (
-				core\sfk.exe echo "!E_DebugColour_Normal![%TIME%] [DMCNet] Written data '%data%' to file '!fileData!'"
+				core\sfk.exe echo "!E_DebugColour_Normal! [%TIME%] [DMCNet] Written data '%data%' to file '!fileData!'"
 			)
 		) else (
 			echo %data%>>%file%
 			
 			if %E_Debug%==true (
-				core\sfk.exe echo "!E_DebugColour_Normal![%TIME%] [DMCNet] Written data '%data%' to file '%file%'"
+				core\sfk.exe echo "!E_DebugColour_Normal! [%TIME%] [DMCNet] Written data '%data%' to file '%file%'"
 			)
 		)
 	)
@@ -1772,13 +1755,13 @@ if /i %func%==writeBlank (
 		echo.>>!fileData!
 	
 		if %E_Debug%==true (
-			core\sfk.exe echo "!E_DebugColour_Normal![%TIME%] [DMCNet] Written a blank line to file '!fileData!'"
+			core\sfk.exe echo "!E_DebugColour_Normal! [%TIME%] [DMCNet] Written a blank line to file '!fileData!'"
 		)
 	) else (
 		echo.>>%file%
 		
 		if %E_Debug%==true (
-			core\sfk.exe echo "!E_DebugColour_Normal![%TIME%] [DMCNet] Written a blank line to file '%file%'"
+			core\sfk.exe echo "!E_DebugColour_Normal! [%TIME%] [DMCNet] Written a blank line to file '%file%'"
 		)
 	)
 	
@@ -1790,13 +1773,13 @@ if /i %func%==delete (
 		del !fileData!
 		
 		if %E_Debug%==true (
-			core\sfk.exe echo "!E_DebugColour_Normal![%TIME%] [DMCNet] Deleted file '!fileData!'"
+			core\sfk.exe echo "!E_DebugColour_Normal! [%TIME%] [DMCNet] Deleted file '!fileData!'"
 		)
 	) else (
 		del %file%
 		
 		if %E_Debug%==true (
-			core\sfk.exe echo "!E_DebugColour_Normal![%TIME%] [DMCNet] Deleted file '%file%'"
+			core\sfk.exe echo "!E_DebugColour_Normal! [%TIME%] [DMCNet] Deleted file '%file%'"
 		)
 	)
 	
@@ -1845,13 +1828,13 @@ if /i %func%==write (
 		echo !writeData!>>core\ticket\%TicketFile%.txt
 		
 		if %E_Debug%==true (
-			core\sfk.exe echo "!E_DebugColour_Normal![%TIME%] [DMCNet] Written data '!writeData!' to ticket file '%TicketFile%'"
+			core\sfk.exe echo "!E_DebugColour_Normal! [%TIME%] [DMCNet] Written data '!writeData!' to ticket file '%TicketFile%'"
 		)
 	) else (
 		echo %data%>>core\ticket\%TicketFile%.txt
 		
 		if %E_Debug%==true (
-			core\sfk.exe echo "!E_DebugColour_Normal![%TIME%] [DMCNet] Written data '%data%' to ticket file '%TicketFile%'"
+			core\sfk.exe echo "!E_DebugColour_Normal! [%TIME%] [DMCNet] Written data '%data%' to ticket file '%TicketFile%'"
 		)
 	)
 	
@@ -1863,13 +1846,13 @@ if /i %func%==file (
 		set TicketFile=!%data%!
 
 		if %E_Debug%==true (
-			core\sfk.exe echo "!E_DebugColour_Normal![%TIME%] [DMCNet] Set ticket file to '!%data%!'"
+			core\sfk.exe echo "!E_DebugColour_Normal! [%TIME%] [DMCNet] Set ticket file to '!%data%!'"
 		)
 	) else (
 		set TicketFile=%data%
 		
 		if %E_Debug%==true (
-			core\sfk.exe echo "!E_DebugColour_Normal![%TIME%] [DMCNet] Set ticket file to '%data%'"
+			core\sfk.exe echo "!E_DebugColour_Normal! [%TIME%] [DMCNet] Set ticket file to '%data%'"
 		)
 	)
 	
@@ -1882,7 +1865,7 @@ if /i %func%==finalise (
 			ren core\ticket\%TicketFile%.txt %TicketFile%.tckt
 			
 			if %E_Debug%==true (
-				core\sfk.exe echo "!E_DebugColour_Normal![%TIME%] [DMCNet] Finalised ticket file '%TicketFile%'"
+				core\sfk.exe echo "!E_DebugColour_Normal! [%TIME%] [DMCNet] Finalised ticket file '%TicketFile%'"
 			)
 		)
 	)
@@ -1895,7 +1878,7 @@ if /i %func%==execute (
 		call :process "usebackq tokens=1* eol=#", " ", "core\ticket\%TicketFile%.tckt"
 		
 		if %E_Debug%==true (
-			core\sfk.exe echo "!E_DebugColour_Normal![%TIME%] [DMCNet] Executed ticket '%TicketFile%'"
+			core\sfk.exe echo "!E_DebugColour_Normal! [%TIME%] [DMCNet] Executed ticket '%TicketFile%'"
 		)
 	)
 	
@@ -1945,7 +1928,7 @@ if %func%==define (
 			call :buildClass "usebackq tokens=1* eol=#", " ", "%commandScript%.dmc", "%commandScript%"
 		
 			if %E_Debug%==true (
-				core\sfk.exe echo "!E_DebugColour_Normal![%TIME%] [DMCNet] Inclusion class '%commandScript%' declared"
+				core\sfk.exe echo "!E_DebugColour_Normal! [%TIME%] [DMCNet] Inclusion class '%commandScript%' declared"
 			)
 		) else (
 			set errorclass=%commandScript%.dmc
@@ -2198,7 +2181,7 @@ set functionClass=%~2
 
 if not defined Function_%functionName%[0] (
 	if %E_Debug%==true (
-		core\sfk.exe echo "!E_DebugColour_Normal![%TIME%] [DMCNet] The function '%functionName%' could not be found, overriding cannot commence, aborting"
+		core\sfk.exe echo "!E_DebugColour_Normal! [%TIME%] [DMCNet] The function '%functionName%' could not be found, overriding cannot commence, aborting"
 	)
 
 	goto:EOF
@@ -2476,20 +2459,20 @@ if %Func%==throw (
 		)
 	)
 	
-	core\sfk.exe echo "!E_DebugColour_Error![%TIME%] [DMCNet] An unexpected error has occurred.
-	core\sfk.exe echo "!E_DebugColour_Error![%TIME%] [DMCNet] An exception has been thrown.
+	core\sfk.exe echo "!E_DebugColour_Error! [%TIME%] [DMCNet] An unexpected error has occurred.
+	core\sfk.exe echo "!E_DebugColour_Error! [%TIME%] [DMCNet] An exception has been thrown.
 	echo.
-	core\sfk.exe echo "!E_DebugColour_Error![%TIME%] [DMCNet] Exception class: "!Exception_%Arg1%!"
-	core\sfk.exe echo "!E_DebugColour_Error![%TIME%] [DMCNet] Exception trigger: "!EXCEPTION_TRIGGER!"
-	core\sfk.exe echo "!E_DebugColour_Error![%TIME%] [DMCNet] Errored class: "%class%.dmc"
+	core\sfk.exe echo "!E_DebugColour_Error! [%TIME%] [DMCNet] Exception class: "!Exception_%Arg1%!"
+	core\sfk.exe echo "!E_DebugColour_Error! [%TIME%] [DMCNet] Exception trigger: "!EXCEPTION_TRIGGER!"
+	core\sfk.exe echo "!E_DebugColour_Error! [%TIME%] [DMCNet] Errored class: "%class%.dmc"
 	echo.
-	core\sfk.exe echo "!E_DebugColour_Error![%TIME%] [DMCNet] START CUSTOM EXCEPTION OUPUT
+	core\sfk.exe echo "!E_DebugColour_Error! [%TIME%] [DMCNet] START CUSTOM EXCEPTION OUPUT
 	echo.
 	
 	call :process "usebackq tokens=1* eol=#", " ", "!Exception_%Arg1%!"
 	
 	echo.
-	core\sfk.exe echo "!E_DebugColour_Error![%TIME%] [DMCNet] END CUSTOM EXCEPTION OUPUT
+	core\sfk.exe echo "!E_DebugColour_Error! [%TIME%] [DMCNet] END CUSTOM EXCEPTION OUPUT
 	
 	call :process "tokens=1* eol=#", " ", "end"
 )

@@ -9,3 +9,9 @@ if Temp declared _ pull Temp
 if KYFunction eq define system.comIn call !PATH_ACENET_Lib!\util\keyboard\KeyScript.bat define
 
 if KYFunction eq get system.comIn call !PATH_ACENET_Lib!\util\keyboard\KeyScript.bat getKeyCode
+
+class {
+    map InclusionArguemtns get 0 KYFunction
+    map InclusionArguments get 1 KYCode
+    map Incl
+}

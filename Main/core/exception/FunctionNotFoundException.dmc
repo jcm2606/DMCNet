@@ -1,11 +1,11 @@
 class {
-exception trigger Function not found.
+    exception trigger Function not found.
 
-def Text = The function '
-def.fromRegister Text errorFunction
-def Text = ' could not be found.
+    def Text = The function '
+    def.fromObject Text errorFunction
+    def.append Text ' could not be found.
 
-print Text
+    print Text
 
-pull Text
+    pull Text
 }
