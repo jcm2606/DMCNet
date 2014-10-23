@@ -1,0 +1,3 @@
+DMCnet Profiler (DMCP)
+
+Profiles any DMCNet object within memory or stored on the local filesystem and builds a DPM (Dmcnet Profiler Mapping) file out of the data DMCP finds.

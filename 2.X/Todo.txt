@@ -1,0 +1,5 @@
+- Create environment handler
+    - Environment handler is basically going to be in charge of managing the internal environment.
+    - It manages all values within the environment, classes built and loaded, libraries loaded, and more.
+- Create class builder
+    - Builds the classes into an array, allowing the environment handler to control and manage all classes.

@@ -1,0 +1,15 @@
+class
+{
+    function main
+    {
+        defnum test = 0
+        
+        print test
+        
+        defnum test = : add 3
+        defnum test = : sub 1
+        defnum test = : mul 2
+        
+        print test
+    }
+}

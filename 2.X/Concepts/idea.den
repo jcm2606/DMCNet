@@ -1,0 +1,22 @@
+# Create a new value with name DEP_VER (which is the dependency variable for the version value)
+new value DEP_VER
+
+# Assign the literal "2.X" to the DEP_VER object
+assign DEP_VER lit:2.X
+
+# Create a new class with name Test
+new class Test
+
+# Create a new function with name main
+new function main
+
+# Add lines of code to object with name main, which internally maps out to a function
+# So this code adds lines of code to the function
+addto main def test = Hello World
+addto main print test
+
+# Assign the object main to the Test object
+assign Test main
+
+# Inject the Test object into the environment
+inject Test

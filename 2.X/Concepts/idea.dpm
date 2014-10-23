@@ -1,0 +1,35 @@
+object {
+    type:file_object
+    path:class.dmc
+
+    function {
+        main {
+            attributes:NIL
+            
+            lines {
+                def test = Hello World
+                
+                print test
+            }
+        }
+    }
+
+    attributes:NIL
+}
+
+object {
+    type:memory_object
+    path:obj.Object_Test
+    
+    sub {
+        subobj {
+            value:Hello World
+            parent:Test
+        }
+        
+        subobj2 {
+            value:This is within subobj
+            parent:Test.subobj
+        }
+    }
+}

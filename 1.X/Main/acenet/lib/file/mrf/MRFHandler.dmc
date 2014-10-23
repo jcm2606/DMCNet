@@ -1,0 +1,54 @@
+#  This class is part of ACENet, and belongs to the ACENet developer.
+
+#  MRFHandler
+#  Handles Memory Record Files and their respective data.
+#  Inclusion
+
+class {
+    map InclusionArguments get 0 Function
+    map InclusionArguments get 1 MRFName
+    map InclusionArguments get 2 MRFEntryID
+    map InclusionArguments get 3 MRFEntryData
+
+    if MRFName declared _ system.register.getValueOf MRFName Temp
+    if MRFName declared _ def MRFName = !Temp!
+    if Temp declared _ pull Temp
+
+    if MRFEntryID declared _ system.register.getValueOf MRFEntryID Temp
+    if MRFEntryID declared _ def MRFEntryID = !Temp!
+    if Temp declared _ pull Temp
+
+    if MRFEntryData declared _ system.register.getValueOf MRFEntryData Temp
+    if MRFEntryData declared _ def MRFEntryData = !Temp!
+    if Temp declared _ pull Temp
+
+    def.append MRFName .txt
+
+    if MRFName nex _ def MRFNonExistantError = [ACENet] Error, MRF '
+    if MRFName nex _ def.fromObject MRFNonExistantError MRFName
+    if MRFName nex _ def.append MRFNonExistantError ' does not exist at the specified location
+    if MRFName nex _ print MRFNonExistantError
+
+    if Function eq add function.invoke MRFHandler.MRFAdd
+    if Function eq get function.invoke MRFHandler.MRFGet
+    
+    #  Function:
+    #    "MRFAdd"
+    #    Internal function for adding data to a Memory Record File.
+    function.wrap MRFAdd {
+        def.fromObject WriteData MRFEntryID
+        def.append WriteData :
+        def.fromObject WriteData MRFEntryData
+
+        file write MRFName WriteData
+
+        pull WriteData
+    }
+
+    #  Function:
+    #    "MRFGet"
+    #    Internal function for getting data from a Memory Record File.
+    function.wrap MRFGet {
+        system.comIn call %PATH_ACENET_Lib%\file\mrf\MRFHandlerScript.bat
+    }
+}

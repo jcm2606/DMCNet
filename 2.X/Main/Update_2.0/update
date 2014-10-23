@@ -1,0 +1,16 @@
+newfolder bin
+setinstallpath bin
+extract array
+extract classhandler
+extract dep
+extract envhandler
+extract exceptionhandler
+extract linehandler
+extract main
+newfolder bin\dep
+locate dep\comms.txt
+move comms.txt dep
+rename dep\comms.txt comms.bat
+locate dep\func.txt
+move func.txt dep
+rename dep\func.txt func.bat

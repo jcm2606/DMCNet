@@ -1,0 +1,5 @@
+The launcher package includes a launch_platform.bat Batch script.
+
+This script can be called with a bunch of arguments to automatically handle calls to any version branch you wish, if you don't want to code your own launcher to handle the branches.
+
+Using the script comes with the benefit that if and when a new version branch rolls out and comes packaged with major launcher-breaking changes, the launch platform will likely update to internally support the new branch.

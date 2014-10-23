@@ -1,0 +1,428 @@
+@echo off
+
+set arg1=%1
+set "arg1=!arg1:"=!"
+
+if "!arg1!"=="func_call" (
+	goto %2
+)
+
+REM func handleFunction
+:handleFunction
+
+if not defined class.%classname%.Function_%funcname%.declared (
+	set exceptionName=FunctionNotFoundException
+
+	set functionClassName=!classname!
+	set functionName=%funcname%
+	
+	call "%E_PATH_Dependencies%\comms" "call throwException" "-channel:func"
+)
+
+title DMCNet !E_Version! - Executing - Class: %classname% - Function: %funcname%
+
+set /a function.functionLength=!class.%classname%.Function_%funcname%.length! - 1
+
+for /l %%n in (0, 1, %function.functionLength%) do (
+	set line=!class.%classname%.Function_%funcname%[%%n]!
+
+	call :handleLine
+)
+
+if "!env.localObjectsDefined!"=="true" (
+	for /f "tokens=1* delims==" %%a in ('set localobj.') do (
+		for /f "tokens=2 delims=." %%c in ("%%a") do (
+			set "%%c=!globalobj.%%c!"
+		)
+	)
+	
+	set "env.localObjectsDefined="
+)
+
+set "function.functionLength="
+
+title DMCNet !E_Version! - Executed - Class: %classname% - Function: %funcname%
+
+goto:EOF
+
+REM func handleLine
+:handleLine
+
+set runCode=true
+
+for /f "tokens=1* delims= " %%a in ("%line%") do (
+	if "!if.ifBlockReached!"=="true" (
+		set runCode=false
+	)
+	
+	if "!if.ifStatementReached!"=="true" (
+		set runCode=false
+	)
+	
+	if "!forEach.blockReached!"=="true" (
+		set runCode=false
+	)
+	
+	if "!forEach.statementReached!"=="true" (
+		set runCode=false
+	)
+
+	if "!runCode!"=="true" (
+		if /i "%%a"=="def" (
+			for /f "tokens=1,2* delims= " %%c in ("%%b") do (
+				if "%%d"=="=" (
+					call :def "%%c", "%%e"
+				)
+			)
+		)
+		
+		if /i "%%a"=="deflocal" (
+			set env.localObjectsDefined=true
+		
+			for /f "tokens=1,2* delims= " %%c in ("%%b") do (
+				if "%%d"=="=" (
+					set globalobj.%%c=!%%c!
+				
+					call :def "%%c", "%%e"
+					
+					set localobj.%%c=true
+				)
+			)
+		)
+		
+		if /i "%%a"=="print" (
+			call :print "%%b"
+		)
+		
+		if /i "%%a"=="if" (
+			for /f "tokens=1,2,3* delims= " %%c in ("%%b") do (
+				set cond=%%d
+				
+				call :if "%%c", "%%e", "%%f"
+			)
+		)
+		
+		if /i "%%a"=="function.invoke" (
+			call :function.invoke "%%b"
+		)
+		
+		if /i "%%a"=="forEach" (
+			for /f "tokens=1,2* delims= " %%c in ("%%b") do (
+				call :forEach "%%c", "%%d", "%%e"
+			)
+		)
+		
+		
+		
+		for /f "tokens=1,2,3,4,5,6,7,8,9 delims=." %%A in ("%%a") do (
+			if /i "%%A"=="sys" (
+				if /i "%%B"=="command" (
+					call :sys.command "%%b"
+				)
+			)
+		)
+	) else (
+		if "!if.ifBlockReached!"=="true" (
+			if "%%a"=="}" (
+				set "if.ifBlockReached="
+				set "if.ifStatementReached="
+				set "if.codeGiven="
+			
+				if "!if.conditionMet!"=="true" (
+					set /a len=!if.blockList.length! - 1
+				
+					for /l %%n in (0, 1, !len!) do (
+						set line=!if.blockList[%%n]!
+						
+						call :handleLine
+					)
+					
+					set "if.conditionMet="
+				)
+			) else (
+				if "!if.conditionMet!"=="true" (
+					call "%E_PATH_Core%\array.bat" add if.blockList "%%a %%b"
+				)
+			)
+		)
+		
+		if not "!if.ifBlockReached!"=="true" (
+			if "!if.ifStatementReached!"=="true" (
+				if "%%a"=="{" (
+					set if.ifBlockReached=true
+				)
+			)
+		)
+		
+		if "!forEach.blockReached!"=="true" (
+			if "%%a"=="}" (
+				set "forEach.blockReached="
+				set "forEach.statementReached="
+			
+				if exist "!forEach.array!" (
+					for /f "usebackq tokens=*" %%A in ("!forEach.array!") do (
+						set !forEach.var!=%%A
+						
+						set /a len=!forEach.blockList.length! - 1
+			
+						for /l %%n in (0, 1, !len!) do (
+							set line=!forEach.blockList[%%n]!
+							
+							call :handleLine
+						)
+					)
+				)
+			) else (
+				if "!forEach.statementReached!"=="true" (
+					call "%E_PATH_Core%\array.bat" add forEach.blockList "%%a %%b"
+				)
+			)
+		)
+		
+		if not "!forEach.blockReached!"=="true" (
+			if "!forEach.statementReached!"=="true" (
+				if "%%a"=="{" (
+					set forEach.blockReached=true
+				)
+			)
+		)
+	)
+)
+
+
+
+goto:EOF
+
+:sys.command
+set command=%~1
+
+!command!
+
+goto:EOF
+
+:def
+set alias=%~1
+set data=%~2
+
+set !alias!=!data!
+
+for %%a in (%data%) do (
+	set .s=%%a
+	set firstchar=!.s:~0,1!
+	set rest=!.s:~1!
+	
+	set t=!%alias%!
+	
+	call :util.replaceObjectIn "!t!", "!firstchar!", "!rest!"
+	
+	if not "!out!"=="" (
+		set !alias!=!out!
+	)
+)
+
+for /f "tokens=1,2* delims= " %%a in ("!%alias%!") do (
+	if "%%a"==":" (
+		if /i "%%b"=="input" (
+			set /p !alias!=%%c
+		)
+	)
+)
+
+if /i "!data!"=="null" (
+	set "!alias!="
+)
+
+goto:EOF
+
+:util.replaceObjectIn
+
+set "out="
+
+set in=%~1
+set firstchar=%~2
+set rest=%~3
+
+set original=!firstchar!!rest!
+set replace=!%rest%!
+
+if not "!in!"=="" (
+	if "!firstchar!"=="$" (
+		set a=!in!
+
+		set out=!a:%original%=%replace%!
+	)
+)
+
+set "a="
+
+goto:EOF
+
+:print
+set alias=%~1
+
+echo !%alias%!
+
+goto:EOF
+
+:if
+set d1=%~1
+set d2=%~2
+set code=%~3
+
+set "if.codeGiven="
+
+if "!code!"=="{" (
+	set if.ifBlockReached=true
+) else (
+	if "!code!"=="" (
+		set if.ifStatementReached=true
+	) else (
+		set if.codeGiven=true
+	)
+)
+
+if "%cond%"=="==" (
+	set d1_fc=!d1:~0,1!
+	set d1_r=!d1:~1!
+	
+	set d2_fc=!d2:~0,1!
+	set d2_r=!d2:~1!
+	
+	call :util.replaceObjectIn "!d1!", "!d1_fc!", "!d1_r!"
+	
+	if not "!out!"=="" (
+		set d1=!out!
+	)
+	
+	call :util.replaceObjectIn "!d2!", "!d2_fc!", "!d2_r!"
+	
+	if not "!out!"=="" (
+		set d2=!out!
+	)
+
+	if "!d1!"=="!d2!" (
+		if "!if.codeGiven!"=="true" (
+			set line=!code!
+			
+			call :handleLine
+			
+			set "if.codeGiven="
+		) else (
+			set if.conditionMet=true
+		)
+	)
+)
+
+if "%cond%"=="/=" (
+	set d1_fc=!d1:~0,1!
+	set d1_r=!d1:~1!
+	
+	set d2_fc=!d2:~0,1!
+	set d2_r=!d2:~1!
+	
+	call :util.replaceObjectIn "!d1!", "!d1_fc!", "!d1_r!"
+	
+	if not "!out!"=="" (
+		set d1=!out!
+	)
+	
+	call :util.replaceObjectIn "!d2!", "!d2_fc!", "!d2_r!"
+	
+	if not "!out!"=="" (
+		set d2=!out!
+	)
+
+	if not "!d1!"=="!d2!" (
+		if "!if.codeGiven!"=="true" (
+			set line=!code!
+			
+			call :handleLine
+			
+			set "if.codeGiven="
+		) else (
+			set if.conditionMet=true
+		)
+	)
+)
+
+if /i "%cond%"=="GTR" (
+	set d1_fc=!d1:~0,1!
+	set d1_r=!d1:~1!
+	
+	set d2_fc=!d2:~0,1!
+	set d2_r=!d2:~1!
+	
+	call :util.replaceObjectIn "!d1!", "!d1_fc!", "!d1_r!"
+	
+	if not "!out!"=="" (
+		set d1=!out!
+	)
+	
+	call :util.replaceObjectIn "!d2!", "!d2_fc!", "!d2_r!"
+	
+	if not "!out!"=="" (
+		set d2=!out!
+	)
+
+	if "!d1!" GTR "!d2!" (
+		if "!if.codeGiven!"=="true" (
+			set line=!code!
+			
+			call :handleLine
+			
+			set "if.codeGiven="
+		) else (
+			set if.conditionMet=true
+		)
+	)
+)
+
+goto:EOF
+
+:function.invoke
+set func=%~1
+
+for /f "tokens=1,2 delims=." %%a in ("%func%") do (
+	set classname=%%a
+	set funcname_=%funcname%
+	set funcname=%%b
+
+	if /i "%%a"=="this" (
+		set classname=%classname%
+	)
+	
+	call "%E_PATH_Dependencies%\comms" "call handleFunction" "-channel:func"
+	
+	set funcname=!funcname_!
+	set "funcname_="
+	
+	title DMCNet !E_Version! - Executing - Class: %classname% - Function: !funcname!
+)
+
+goto:EOF
+
+:forEach
+set forEach.array=%~1
+set forEach.var=%~2
+set code=%~3
+
+if "!code!"=="{" (
+	set forEach.blockReached=true
+	set forEach.statementReached=true
+) else (
+	if "!code!"=="" (
+		set forEach.statementReached=true
+	) else (
+		if exist "!forEach.array!" (
+			for /f "usebackq tokens=*" %%A in ("!forEach.array!") do (
+				set !forEach.var!=%%A
+	
+				set line=!code!
+									
+				call :handleLine
+			)
+		)
+	)
+)
+
+goto:EOF

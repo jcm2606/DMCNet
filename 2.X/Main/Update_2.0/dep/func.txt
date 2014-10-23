@@ -1,0 +1,76 @@
+@echo off
+
+REM Function Framework
+
+REM Comms Framework - Register scripts:
+REM     call comms "reg_scripts" "-channel:func"
+
+REM Comms Framework - Call function:
+REM     call comms "call FunctionName" "-channel:func"
+
+REM -comms listener func
+
+REM -dependencies comms
+
+set comms.message=!comms.message:"=!
+
+if "%1"=="/?" (
+	echo.
+	echo Provides a simple function handling framework for use within Batch scripts.
+	echo Supports both internal and external functions. Does not require explicit
+	echo referencing to any Batch scripts.
+	echo.
+	echo USE:
+	echo     Comms Messages:
+	echo         "reg_scripts" : Iterates through directory tree, reads all scripts
+	echo                         within directory tree, and registers discovered
+	echo                         functions.
+	echo         "call [FunctionName]" : Calls a function specified by the given
+	echo                                 function name.
+	echo.
+	echo DEPENDENCIES:
+	echo 	Comms Framework
+	
+	exit /b
+)
+
+for /f "tokens=1* delims= " %%a in ("!comms.message!") do (
+	if %%a==reg_scripts (
+		for /r %%z in (*.bat) do (
+			for /f "usebackq tokens=1,2,3 delims= " %%c in ("%%z") do (
+				if !func.startDef!==true (
+					set line=%%c
+					set startchar=!line:~0,1!
+					set name=!line:~1!
+					
+					if "!startChar!"==":" (
+						set func.func_!func.temp!.labelName=!name!
+						set "func.func_!func.temp!.script=%%z"
+					)
+					
+					set "line="
+					set "startchar="
+					set "name="
+					
+					set "func.startDef="
+					set "func.temp="
+				)
+				
+				if /i "%%c"=="REM" (
+					if /i "%%d"=="func" (
+						set func.startDef=true
+						set func.temp=%%e
+					)
+				)
+			)
+		)
+	)
+	
+	if %%a==call (
+		for /f "tokens=1 delims= " %%A in ("%%b") do (
+			call "!func.func_%%A.script!" func_call !func.func_%%A.labelName! "%%b"
+		)
+	)
+)
+
+goto:EOF

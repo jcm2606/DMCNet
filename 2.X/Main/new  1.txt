@@ -1,0 +1,28 @@
+cmd.exe
+\- DMCNet
+    \- env (ENVironment)
+        \- Test = NEWOBJECT
+            \- Test.type = CLASS
+        \- exampleFunction = NEWOBJECT
+            \- exampleFunction.type = FUNCTION
+            \- exampleFunction.lines = array {
+                def test = Hello World
+                print test
+            }
+    \- class
+        \- class.Test.Function_exampleFunction = array {
+            def test = Hello World
+            print test
+        }
+        \- class.Test.Function_exampleFunction.declared = true
+    \- func
+        
+        
+        
+        
+        
+        
+        
+"env" : Stores the whole DMCNet environment and all objects related to the environment.
+"class" : Stores all class data and relative function data.
+"func" : Stores most system function data.

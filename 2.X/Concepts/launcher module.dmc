@@ -1,0 +1,10 @@
+respondTo notification notify
+respondTo button_draw drawButton
+
+label notify
+    write 
+endlabel notify
+
+label drawButton
+    
+endlabel drawButton

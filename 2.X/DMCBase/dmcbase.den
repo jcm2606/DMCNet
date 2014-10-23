@@ -1,0 +1,20 @@
+dep version 2.0
+
+# Sets the local_env object to a new instance of LocalEnv, which is an internal object provided by DMCBase that represents the local session environment
+obj local_env = new LocalEnv
+
+obj env_path = env.custom
+
+assign local_env env_path
+
+# Sets the env object to the local_env object, you can edit the env object without causing the local environment to change
+obj env = local_env
+
+# Place your environment code here...
+obj E_ExampleObject = This is an example object
+
+assign env E_ExampleObject
+
+inject env
+
+set_env local_env

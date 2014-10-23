@@ -1,0 +1,15 @@
+# START CORE ENVIRONMENT VALUES
+
+E_Debug:false
+E_WorkingDirectory:CD
+
+# Colour values
+# Valid colours: Yellow, Red, Blue, Green, Magenta, Cyan
+# Capital start brightens the colour
+E_DebugColour.Normal:Yellow
+E_DebugColour.Error:Red
+
+# END CORE ENVIRONMENT VALUES
+
+# Place custom values you wish to be loaded into
+# DMCNet's environment after here

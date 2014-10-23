@@ -1,12 +1,9 @@
 class {
     function.wrap main {
-        function.invoke this.test
-    }
-    
-    function.wrap test {
         def test = Hello World
+        
         print test
-        pull test
+        
         end
     }
 }

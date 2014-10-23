@@ -1,0 +1,45 @@
+@echo off
+
+setlocal EnableDelayedExpansion
+
+set options=%1
+set "options=!options:"=!"
+
+for /f "tokens=1* delims=:" %%a in ("!options!") do (
+	if "%%a"=="-crash" (
+		set depmanager.crash=true
+	)
+)
+
+for /r "%CD%" %%z in (*.bat) do (
+	for /f "usebackq tokens=1,2* delims= " %%a in ("%%z") do (
+		if /i "%%a"=="REM" (
+			if /i "%%b"=="-dependencies" (
+				for %%d in (%%c) do (
+					set found=false
+				
+					for /r "%CD%" %%z in (*.bat) do (
+						if %%~nz==%%d (
+							set found=true
+						)
+					)
+					
+					if !found!==false (
+						echo ERROR: Script '%%~nz' has a dependency that has not been met. Required script '%%d' could not be found.
+						
+						set depmanager.errored=true
+					)
+					
+					set "found="
+				)
+			)
+		)
+	)
+)
+
+if !depmanager.errored!==true (
+	if !depmanager.crash!==true (
+		pause
+		exit
+	)
+)

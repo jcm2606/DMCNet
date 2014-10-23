@@ -1,0 +1,174 @@
+@echo off
+
+set arg1=%1
+set "arg1=!arg1:"=!"
+
+if "!arg1!"=="func_call" (
+	goto %2
+)
+
+
+REM func buildClass
+:buildClass
+
+title DMCNet !E_Version! - Building class '%filename%'
+
+set /a class.%filename%.lines=0
+
+for /f "usebackq tokens=* delims= " %%a in ("!file!") do (
+	if "!class.classIdentFound!"=="true" (
+		if not "!function.functionBlockFound!"=="true" (
+			if "%%a"=="}" (
+				set class.classBlockFound=false
+			)
+		)
+		
+		if "!class.classBlockFound!"=="true" (
+			if not "%%a"=="" (
+				call :buildClass.registerFunctions "%%a"
+			)
+		)
+		
+		if not "!function.functionBlockFound!"=="true" (
+			if "%%a"=="{" (
+				set class.classBlockFound=true
+			)
+		)
+	) else (
+		set fchar=%%a
+		set val=!fchar:~1!
+		set fchar=!fchar:~0,1!
+		
+		if "!fchar!"=="@" (
+			call :handleClassModifier "!val!"
+		)
+	)
+	
+	if "%%a"=="class" (
+		set class.classIdentFound=true
+	)
+	
+	if "%%a"=="class {" (
+		set class.classBlockFound=true
+		set class.classIdentFound=true
+	)
+	
+	set /a class.%filename%.lines+=1
+)
+
+if defined class.%filename%.Function__build.length (
+	set classname=%filename%
+	set funcname=_build
+	
+	call "%E_PATH_Dependencies%\comms" "call handleFunction" "-channel:func"
+)
+
+if "!class.classBlockFound!"=="" (
+	title DMCNet !E_Version! - Crashed - Exception: ClassBuildException
+
+	echo.
+	
+	echo An unexpected error has occurred, DMCNet has been forcefully shut down. Details are listed below.
+
+	echo.
+	
+	echo An error occurred during a class build operation; class format for class '%filename%' was invalid.
+	
+	echo.
+	
+	pause
+	exit
+)
+
+set "class.classIdentFound="
+set "class.classBlockFound="
+set "function.functionBlockFound="
+set "function.name="
+set "function.functionIdentFound="
+
+title DMCNet !E_Version! - Built class '%filename%'
+
+goto:EOF
+
+:buildClass.registerFunctions
+set line=%~1
+set "line=!line:"=!"
+
+title DMCNet !E_Version! - Building class '%filename%' - Registering functions
+
+for /f "tokens=1,2,3 eol=#" %%a in ("%line%") do (
+	if "!function.functionBlockFound!"=="true" (
+		if "%%a"=="}" (
+			if not "!function.invalidFunctionBlockEnd!"=="true" (
+				set function.functionBlockFound=false
+			) else (
+				set function.invalidFunctionBlockEnd=false
+			)
+		)
+	)
+	
+	if "!function.functionBlockFound!"=="true" (
+		call "%E_PATH_Core%\array.bat" add class.%filename%.Function_!function.name! "%line%"
+	) else (
+		set fchar=%%a
+		set val=!fchar:~1!
+		set fchar=!fchar:~0,1!
+		
+		if "!fchar!"=="@" (
+			call :handleFunctionModifier "!val!"
+		)
+	)
+	
+	if /i "%%a"=="if" (
+		set function.invalidFunctionBlockEnd=true
+	)
+	
+	if /i "%%a"=="forEach" (
+		set function.invalidFunctionBlockEnd=true
+	)
+	
+	if /i "%%a"=="function" (
+		if "%%c"=="{" (
+			set function.functionBlockFound=true
+			
+			set function.name=%%b
+			
+			set class.%filename%.Function_!function.name!.declared=true
+		)
+	)
+	
+	if /i "%%a"=="function" (
+		set function.functionIdentFound=true
+		
+		set function.name=%%b
+	)
+	
+	if "!function.functionIdentFound!"=="true" (
+		if "%%a"=="{" (
+			set function.functionBlockFound=true
+			
+			set class.%filename%.Function_!function.name!.declared=true
+		)
+	)
+)
+
+goto:EOF
+
+:handleClassModifier
+set modifierName=%~1
+
+if /i "!modifierName!"=="Exception" (
+	set exceptionClass=!file!
+	set exceptionName=!filename!
+	
+	call "%E_PATH_Dependencies%\comms" "call registerException" "-channel:func"
+)
+
+goto:EOF
+
+:handleFunctionModifier
+set modifierName=%~1
+
+echo !modifierName!
+
+goto:EOF

@@ -1,0 +1,61 @@
+@echo off
+
+set arg1=%1
+set "arg1=!arg1:"=!"
+
+if "!arg1!"=="func_call" (
+	call :%2
+	
+	goto:EOF
+)
+
+
+
+REM func registerException
+:registerException
+
+set exception.exception_!exceptionName!=!exceptionClass!
+
+goto:EOF
+
+REM func throwException
+:throwException
+
+if not "!exception.exception_%exceptionName%!"=="" (
+	title DMCNet !E_Version! - Crashed - Exception: !exceptionName!
+
+	echo.
+	
+	echo An unexpected error has occurred, DMCNet has been forcefully shut down. Details are listed below.
+
+	echo.
+
+	echo START EXCEPTION INFORMATION
+	echo Exception: !exceptionName!
+	echo Exception Class: !exception.exception_%exceptionName%!
+	echo END EXCEPTION INFORMATION
+	
+	echo.
+	
+	echo START DMCNET INFORMATION
+	echo DMCnet Version: !E_Version!
+	echo END DMCNET INFORMATION
+	
+	echo.
+	
+	echo START EXCEPTION OUTPUT
+	
+	set classname=!exceptionName!
+	set funcname=handleException
+	
+	call "%E_PATH_Dependencies%\comms" "call handleFunction" "-channel:func"
+	
+	echo END EXCEPTION OUTPUT
+
+	echo.
+	
+	pause
+	exit
+)
+
+goto:EOF

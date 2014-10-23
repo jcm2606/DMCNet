@@ -1,0 +1,79 @@
+@echo off
+setlocal EnableDelayedExpansion
+
+REM Initial environment variable declaration
+
+set "E_PATH_Core=%CD%\bin"
+set "E_PATH_Dependencies=%E_PATH_Core%\dep"
+
+set E_Mode=%1
+set "E_Mode=!E_Mode:"=!"
+
+set E_Args=%2
+set "E_Args=!E_Args:"=!"
+
+if "!E_Mode!"=="func_call" (
+	goto %2
+)
+
+set "E_Version_Major=2"
+set "E_Version_Minor=0"
+
+set E_Version=%E_Version_Major%.%E_Version_Minor%
+
+title DMCNet !E_Version!
+
+REM -dependencies comms func
+
+title DMCNet !E_Version! - Checking dependencies
+
+call "%E_PATH_CORE%\dep" -crash
+
+title DMCNet !E_Version! - Checked dependencies
+
+title DMCNet !E_Version! - Registering Func framework functions
+
+call "%E_PATH_Dependencies%\comms" "reg_scripts" "-channel:func"
+
+title DMCNet !E_Version! - Registered Func framework functions
+
+for /r %%z in (*.dmc) do (
+	set file=%%z
+	set filename=%%~nz
+
+	call :callFunction "buildClass"
+)
+
+call :loadDmcnet
+
+echo.
+pause
+exit
+
+
+
+
+
+REM func loadDmcnet
+:loadDmcnet
+
+if "!E_Mode!"=="call_class" (
+	set classname=!E_Args!
+	set funcname=main
+	
+	call :callFunction "handleFunction"
+)
+
+goto:EOF
+
+
+
+
+
+:callFunction
+set data=%~1
+set "data=!data:"=!"
+
+call "%E_PATH_Dependencies%\comms" "call !data!" "-channel:func"
+
+goto:EOF

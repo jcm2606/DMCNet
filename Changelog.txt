@@ -1,0 +1,67 @@
+2.0:
+- Added: The ability to customise how exactly you lay your code out
+    - For example, having the bracket next to a class or function header, or beneath, both work the same
+- Added: The ability to use code blocks with IF statements, loops, and generally anything they apply to
+    - Follows the same customisability principle as class / function headers
+- Added: The ability to use the same object functionality added in the 1.5 update in most, if not all, cases, by prepending a string with the $ character
+    - For example, when using an object within an object, you can use $objectNameHere, and that string will be replaced by whatever value the specified object represents
+- Removed: Pretty much everything
+    - Being implemented slowly
+- Changed: A lot.
+- Complete rewrite and redesign from the ground up
+    - Makes it easier to manage, faster, and generally better
+        - DMCNet under the 1.X branch was never designed for the "object-oriented" use I forced it to support, it was very messy
+- Uses and depends on two custom frameworks
+    - Comms and Func frameworks
+    - Also depends on a custom utility, the DepManager (Dependency Manager) (should be packaged with DMCNet)
+        - With the two frameworks, if they aren't installed for one reason or another, DepManager will crash DMCNet out, without DepManager, DMCNet will hard error out
+
+1.9:
+- Added: Coloured text support
+    - Only debug text
+- Rewrote the whole class system to allow a new class layout similar to Java classes, and to allow a modifier system similar to that of Java annotations
+
+1.8:
+- Added: The -showEventData flag
+- Added: "Events" and event data
+- Added: More hook triggers
+    - Class build triggers (PRE and POST)
+    - Start triggers
+- Added: Class inheriting
+- Added: Session communication API
+- Changed: Moved hooks out of explicitly triggered to dynamically implicitly triggered
+- Rewrote the class loader to work off a class building system
+    - Before the class is executed, the class is built. All functions within are declared all at once, all inherited classes are also built, same with included classes
+
+1.7:
+- Added: Hooks
+- Added: Class line counter
+- Added: Functions
+- Added: "Tags" (now known as Inclusions)
+- Removed: The -treatConfigAsClass flag
+- Removed: Wipe feature
+- Removed: Project functionality
+- Changed: The -showBranding lag to include pathing
+- Changed: Hardcoded explicit lib support to dynamic implicit hook calling
+- Changed: Changed how actual commands were written internally to use subroutines instead of code hardwritten into the IF statement
+- Rewrote command handling system to use spaces instead of arrows for delimiters
+
+
+1.6:
+- Added: Support for user flags to be provided
+    - Added flags: -debug -showDOSOutput -treatConfigAsClass
+      -showBranding
+- Added: The ability for DMCNet to treat the config as a class
+- Added: Array / list support
+- Changed: Ticket API to allow a ticket handler to be set
+- Changed: Ticket API to allow conversion of ticket to raw text file
+- Changed: Ticket API to allow writing of arrays
+
+1.5:
+- Added: Ticket API
+- Added: WAIT command
+- Added: Support for dynamic object use in command arguments (prepend a string with @ to use the object value under the alias)
+- Changed: Code layout + syntax
+
+1.3:
+- Added: Lib folder mappings to allow easy changing of lib folder naming and location

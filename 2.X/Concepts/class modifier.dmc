@@ -1,0 +1,45 @@
+class
+{
+    @Hook CLASS_BUILD_POST
+    function handleClassBuild
+    {
+        if $className == example
+        {
+            function.invoke this.handleClass
+        }
+    }
+    
+    function handleClass
+    {
+        defint entry.index = -1
+        
+        forEach class.example.Function_main entry
+        {
+            split entry entryArray
+            
+            if $entryArray[0] == def
+            {
+                function.invoke this.handleEntry
+            }
+            
+            defint entry.index = : add 1
+        }
+    }
+    
+    function handleEntry
+    {
+        defarray class.example.Function_main $entry.index = def example = That is an example
+    }
+}
+
+# Class we're editing:
+
+# Class file: example.dmc
+
+# class {
+#     function main {
+#         def example = This is an example
+#         
+#         print example
+#     }
+# }

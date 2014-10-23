@@ -1,0 +1,6 @@
+DMCNet is now sorted in terms of version brances.
+
+DMCNet 1.X is stored within the 1.X folder.
+DMCNet 2.X and above is stored within the 2.X folder.
+
+Folders at the root of the project directory are either version-independent, internally sorted, or documentation.

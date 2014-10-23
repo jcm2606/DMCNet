@@ -1,0 +1,85 @@
+@echo off
+
+REM Comms Framework.
+REM Created by Jake Caldwell.
+
+set comms.input=%1
+set comms.options=%2
+
+set "comms.options=!comms.options:"=!"
+
+set comms.scope=ALL
+set comms.channel=*
+
+if "!coms.input!"=="/?" (
+	echo.
+	echo Provides a simple, custom, dynamic communication handling framework for use
+	echo within Batch scripts. Can be used to allow simple communication within a
+	echo range of scripts, without explicitly referencing any script.
+	echo.
+	echo USE:
+	echo     comms "[message]" "[options]"
+	echo.
+	echo Quotation marks MUST be included.
+	echo.
+	echo VALID OPTIONS:
+	echo     -scope:{SCOPE}
+	echo         Allows you to set a scope for the framework to work with, valid scopes
+	echo         are ALL, ROOT, or EXPLICIT. ALL will include all Batch scripts in
+	echo         current directory tree, ROOT will include only the Batch scripts in
+	echo         the root directory the framework is in, EXPLICIT only includes scripts
+	echo         which are explicitly provided. Defaults to ALL.
+	echo.
+	echo     -channel:{CHANNEL}
+	echo         Allows you to set a channel for this message to be sent through. Can be
+	echo         used to filter which listeners you want to be fired when this message
+	echo         is sent. Defaults to a wildcard value.
+	
+	exit /b
+)
+
+for %%z in (%comms.options%) do (
+	for /f "tokens=1,2 delims=:" %%a in ("%%z") do (
+		if /i "%%a"=="-scope" (
+			set comms.scope=%%b
+		)
+		
+		if /i "%%a"=="-channel" (
+			set comms.channel=%%b
+		)
+	)
+)
+
+if /i !comms.scope!==all (
+	for /r %%a in (*.bat) do (
+		for /f "usebackq tokens=1,2,3* delims= " %%b in ("%%a") do (
+			if "%%b"=="REM" (
+				if "%%c"=="-comms" (
+					if "%%d"=="listener" (
+						set valid=true
+						
+						if not "%%e"=="" (
+							if not "%%e"=="!comms.channel!" (
+								set valid=false
+							)
+						)
+						
+						if !valid!==true (
+							set "comms.message=!comms.input:"=!"
+							
+							call "%%a"
+							
+							set "comms.message="
+						)
+					)
+				)
+			)
+		)
+	)
+)
+
+set "comms.input="
+set "comms.scope="
+set "comms.channel="
+
+goto:EOF

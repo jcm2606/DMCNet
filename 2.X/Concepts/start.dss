@@ -1,0 +1,24 @@
+# .dss file
+# Dmcnet Startup Script (DSS)
+# Allows a DMCNet project to completely automate startup of the project
+
+# Sets the class this startup script will be starting
+class = Start
+
+# Sets the two launch variables used during DMCNet launching
+# Function and Arguments respectively
+launch.func = call_class
+launch.args = $class
+
+# Writes to the DMCNet Startup File
+# Note: This section is written to the "local.dsf" file
+dsf {
+    env {
+        from local.den {
+            setenv
+        }
+    }
+}
+
+# Starts DMCNet up with all the options set in the script
+start

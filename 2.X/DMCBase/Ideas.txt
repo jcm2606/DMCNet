@@ -1,0 +1,7 @@
+- What is DMCBase?
+    DMCBase is a special modification to DMCNet that allows customisation of the environment to take place. DEN files can interface with the environment in a much more open way. DMCBase is incompatible with the regular DMCNet and other modifications for DMCNet.
+    
+- What does it allow you to do?
+    DMCBase allows the developer of a program using it to customise the environment.
+    
+New commands:

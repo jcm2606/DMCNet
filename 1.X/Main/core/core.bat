@@ -49,7 +49,7 @@ if %E_Debug%==true (
 
 REM Environment variable declaration
 set E_Version_Major=1
-set E_Version_Minor=9
+set E_Version_Minor=10
 set E_Version=%E_Version_Major%.%E_Version_Minor%
 set "E_CoreObjMapPath=%loc:"=%\dmcnet.txt"
 set "E_CorePath=%loc:"=%"
@@ -1939,6 +1939,14 @@ REM echo %func% %commandName% %commandScript%
 
 if %func%==define (
 	if not defined Inclusion_%commandName% (
+		if /i "%commandScript%"=="dmcnet.console" (
+			set Inclusion_%commandName%=dmcnet.Console
+			
+			set completed=true
+			
+			goto:EOF
+		)
+	
 		set Inclusion_%commandName%=%commandScript%.dmc
 		
 		if exist %commandScript%.dmc (
@@ -1958,6 +1966,22 @@ if %func%==define (
 )
 
 if %func%==invoke (
+	if !Inclusion_%commandName%!==dmcnet.Console (
+		for /f "tokens=1* delims= " %%A in ("%~3") do (
+			if /i %%A==write (
+				echo !%%B!
+			)
+			
+			if /i %%A==flush (
+				cls
+			)
+		)
+		
+		set completed=true
+		
+		goto:EOF
+	)
+
 	if not defined FineInvokeCalled (
 		if defined InclusionArguments[0] (
 			call core\array.bat clear InclusionArguments

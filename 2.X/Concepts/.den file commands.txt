@@ -1,0 +1,1 @@
+DEN files are simple Dmcnet ENvironment mappings which can be used to dynamically generate custom environments for use within DMCNet

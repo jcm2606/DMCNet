@@ -1,0 +1,9 @@
+- .DMC
+    The standard DMCNet class. You can write DMCNet code within a .dmc class, and DMCNet can interpret it.
+
+    DMCnet
+    
+- .DEN
+    A special file which allows a developer to modify the environment right down to the class level. Can be used to inject custom classes and perhaps overwrite existing ones, used to ultimately interact and modify the environment without needing to modify the main script.
+    
+    Dmcnet ENvironment
